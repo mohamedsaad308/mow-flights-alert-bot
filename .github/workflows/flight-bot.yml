@@ -35,7 +35,7 @@ jobs:
           git add flight_state.json
           git diff --quiet --cached || git commit -m "Update flight price state [skip ci]"
           git push
-      - name: Debug token length (temporary)
+      - name: Debug token validity (temporary)
         env:
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
-        run: echo "Token length is ${#TG_BOT_TOKEN}"
+        run: curl -s "https://api.telegram.org/bot${TG_BOT_TOKEN}/getMe"
