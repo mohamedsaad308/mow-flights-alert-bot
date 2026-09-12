@@ -2,8 +2,10 @@ name: Flight Price Watcher
 
 on:
   schedule:
-    - cron: '*/20 * * * *'   # every 20 minutes (UTC)
-  workflow_dispatch: {}       # lets you also trigger it manually from the Actions tab
+    - cron: '*/20 * * * *'
+  workflow_dispatch: {}
+  push:
+    branches: [master]   # or master, or omit "branches" to run on all pushes
 
 permissions:
   contents: write   # needed so the workflow can commit the updated state file
