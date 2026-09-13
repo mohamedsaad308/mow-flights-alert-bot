@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Direct-flight price watcher: MOW (Moscow) / LED (Saint Petersburg) / MSQ (Minsk)
--> HRG (Hurghada) / CAI (Cairo)
+<-> HRG (Hurghada) / CAI (Cairo) / SSH (Sharm El Sheikh) -- both directions.
 
 Checks a rolling date window (today through DATE_RANGE_DAYS-1 days ahead)
 using Travelpayouts' aviasales/v3/prices_for_dates endpoint.
@@ -18,15 +18,20 @@ that specific fare is now hardcoded into IGNORED_FLIGHTS below.
 
 What it does
 ------------
-- For each route, for each day in the window, asks for the cheapest direct
-  (non-stop) one-way fare(s) found for that specific date.
+- For each route (outbound to Egypt AND the return leg back), for each day
+  in the window, asks for the cheapest direct (non-stop) one-way fare(s)
+  found for that specific date.
 - Keeps a small JSON cache (flight_state.json) keyed by route, tracking the
   cheapest price ever seen, so it can tell when a route hits a new record
   low. Only writes to that file when a new record low is actually found --
   an unchanged run touches nothing on disk.
-- Only sends Telegram messages when a new record low was found (a drop of
-  at least MIN_PRICE_DROP_USD). Use --dry-run to print alerts to the
-  terminal instead of sending them, and --verbose to see every fare found.
+- Sends at most THREE Telegram messages per run, only when something
+  changed: (1) one overall summary covering every route in both
+  directions, (2) one message combining all "to Egypt" record-low events,
+  (3) one message combining all "from Egypt" record-low events. A
+  direction with no events that run simply doesn't get a message.
+- Use --dry-run to print alerts to the terminal instead of sending them,
+  and --verbose to see every fare found.
 
 Setup
 -----
@@ -62,9 +67,8 @@ TP_TOKEN = os.environ.get("TP_TOKEN", "")
 TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "")
 TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")
 
-# (origin, destination) pairs to check. City codes cover all airports in
-# that city (e.g. MOW = all Moscow airports, LED = Saint Petersburg).
-ROUTES = [
+# Outbound: home cities -> Egypt.
+TO_EGYPT_ROUTES = [
     ("MOW", "HRG"),  # Moscow -> Hurghada
     ("MOW", "CAI"),  # Moscow -> Cairo
     ("LED", "HRG"),  # Saint Petersburg -> Hurghada
@@ -72,6 +76,13 @@ ROUTES = [
     ("MSQ", "HRG"),  # Minsk -> Hurghada
     ("MSQ", "SSH"),  # Minsk -> Sharm El Sheikh
 ]
+
+# Return leg: Egypt -> home cities (mirror of the above).
+FROM_EGYPT_ROUTES = [(dst, src) for (src, dst) in TO_EGYPT_ROUTES]
+
+ROUTES = TO_EGYPT_ROUTES + FROM_EGYPT_ROUTES
+TO_EGYPT_SET = set(TO_EGYPT_ROUTES)
+FROM_EGYPT_SET = set(FROM_EGYPT_ROUTES)
 
 # Specific (origin, destination, flight_number) combos to hardcode-ignore --
 # confirmed via manual check on aviasales.com to be stale/mislabeled cache
@@ -266,7 +277,9 @@ def check_route(origin, destination, fares, state):
     return event
 
 
-def build_event_message(ev):
+def build_event_block(ev):
+    """A single event's block of text (no standalone header) -- used inside
+    the combined direction messages."""
     duration_note = f" · {format_duration(ev['duration'])}" if ev.get("duration") else ""
     if ev["old_price"] is None:
         headline = f"🆕 <b>{ev['origin']} → {ev['destination']}</b> — first fare seen"
@@ -281,6 +294,30 @@ def build_event_message(ev):
         f"🛫 {depart}   ✈️ {ev['flight_number']}\n"
         f"<a href=\"{ev['link']}\">Book / verify</a>"
     )
+
+
+def build_direction_message(title, events):
+    if not events:
+        return None
+    parts = [f"<b>{title}</b>"]
+    parts.extend(build_event_block(ev) for ev in events)
+    return "\n\n".join(parts)
+
+
+def build_summary_message(route_fares):
+    """One combined summary message covering every route, grouped by
+    direction (to Egypt / from Egypt)."""
+    lines = [f"📊 <b>Flight Summary</b> · next {DATE_RANGE_DAYS} days"]
+
+    lines.append("\n✈️ <b>To Egypt</b>")
+    for origin, destination in TO_EGYPT_ROUTES:
+        lines.append(summarize_route(origin, destination, route_fares[(origin, destination)]))
+
+    lines.append("\n🛬 <b>From Egypt</b>")
+    for origin, destination in FROM_EGYPT_ROUTES:
+        lines.append(summarize_route(origin, destination, route_fares[(origin, destination)]))
+
+    return "\n\n".join(lines)
 
 
 def main():
@@ -299,7 +336,7 @@ def main():
 
     state = load_state()
 
-    # Pass 1: fetch every route's fares once.
+    # Pass 1: fetch every route's fares once (both directions).
     route_fares = {}
     for origin, destination in ROUTES:
         route_fares[(origin, destination)] = fetch_direct_fares(origin, destination)
@@ -314,33 +351,36 @@ def main():
                           f"duration={format_duration(f.get('duration'))}")
 
     # Pass 2: check each route's cheapest fare against its recorded low.
-    events = []
+    to_egypt_events = []
+    from_egypt_events = []
     for (origin, destination), fares in route_fares.items():
         ev = check_route(origin, destination, fares, state)
-        if ev:
-            events.append(ev)
+        if not ev:
+            continue
+        if (origin, destination) in TO_EGYPT_SET:
+            to_egypt_events.append(ev)
+        else:
+            from_egypt_events.append(ev)
+
+    total_events = len(to_egypt_events) + len(from_egypt_events)
 
     print(f"\n=== Summary (next {DATE_RANGE_DAYS} days) ===")
-    summary_lines = [f"📊 <b>Flight Summary</b> · next {DATE_RANGE_DAYS} days\n"]
-    for (origin, destination), fares in route_fares.items():
-        summary_lines.append(summarize_route(origin, destination, fares))
+    summary_text = build_summary_message(route_fares)  # also prints per-route lines as a side effect
 
-    if events:
-        # A real record-low was found -- notify AND persist the new baseline(s).
-        send_telegram_message(
-            BIG_WARNING + "\n\n" + "\n\n".join(summary_lines),
-            dry_run=args.dry_run,
-        )
-        for ev in events:
-            send_telegram_message(build_event_message(ev), dry_run=args.dry_run)
+    if total_events:
+        # Message 1: overall summary, both directions.
+        send_telegram_message(BIG_WARNING + "\n\n" + summary_text, dry_run=args.dry_run)
+        # Message 2: everything new/cheaper heading TO Egypt.
+        msg = build_direction_message("✈️ To Egypt — updates", to_egypt_events)
+        if msg:
+            send_telegram_message(msg, dry_run=args.dry_run)
+        # Message 3: everything new/cheaper heading FROM Egypt.
+        msg = build_direction_message("🛬 From Egypt — updates", from_egypt_events)
+        if msg:
+            send_telegram_message(msg, dry_run=args.dry_run)
         save_state(state)
     elif args.force_summary:
-        # Manually requested summary -- send it, but nothing changed, so
-        # don't touch flight_state.json.
-        send_telegram_message(
-            BIG_WARNING + "\n\n" + "\n\n".join(summary_lines),
-            dry_run=args.dry_run,
-        )
+        send_telegram_message(BIG_WARNING + "\n\n" + summary_text, dry_run=args.dry_run)
         print("\n(Forced summary sent; no state changes to save.)")
     else:
         print("\nNo new record-low prices since last run -- not sending anything, "
