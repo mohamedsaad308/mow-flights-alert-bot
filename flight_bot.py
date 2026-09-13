@@ -20,14 +20,13 @@ What it does
 ------------
 - For each route, for each day in the window, asks for the cheapest direct
   (non-stop) one-way fare(s) found for that specific date.
-- Keeps a small JSON cache (flight_state.json) keyed by route+date+flight
-  number, so it can tell "new flight appeared" from "price changed on a
-  flight we already know about."
-- Only sends Telegram messages when something actually changed since the
-  last run -- an unchanged run sends nothing, so hourly scheduling (e.g.
-  via GitHub Actions) doesn't spam you every hour with the same data.
-- Use --dry-run to print alerts to the terminal instead of sending them,
-  and --verbose to see every fare found, not just new/changed ones.
+- Keeps a small JSON cache (flight_state.json) keyed by route, tracking the
+  cheapest price ever seen, so it can tell when a route hits a new record
+  low. Only writes to that file when a new record low is actually found --
+  an unchanged run touches nothing on disk.
+- Only sends Telegram messages when a new record low was found (a drop of
+  at least MIN_PRICE_DROP_USD). Use --dry-run to print alerts to the
+  terminal instead of sending them, and --verbose to see every fare found.
 
 Setup
 -----
@@ -35,14 +34,15 @@ Setup
 2. Set environment variables: TP_TOKEN, TG_BOT_TOKEN, TG_CHAT_ID
 3. Run:  python flight_bot.py --dry-run --verbose   (for testing)
          python flight_bot.py                        (for real alerts)
-4. Schedule with cron, Task Scheduler, or GitHub Actions (see README notes).
+4. Trigger externally (e.g. cron-job.org hitting workflow_dispatch) since
+   GitHub's own `schedule` trigger is unreliable at short intervals.
 
 Route codes
 -----------
 - MOW = Moscow (city code, covers SVO/DME/VKO)
 - LED = Saint Petersburg
 - MSQ = Minsk
-- HRG = Hurghada, CAI = Cairo
+- HRG = Hurghada, CAI = Cairo, SSH = Sharm El Sheikh
 """
 
 import argparse
@@ -70,7 +70,7 @@ ROUTES = [
     ("LED", "HRG"),  # Saint Petersburg -> Hurghada
     ("LED", "CAI"),  # Saint Petersburg -> Cairo
     ("MSQ", "HRG"),  # Minsk -> Hurghada
-    ("MSQ", "SSH"),  # Minsk -> Cairo
+    ("MSQ", "SSH"),  # Minsk -> Sharm El Sheikh
 ]
 
 # Specific (origin, destination, flight_number) combos to hardcode-ignore --
@@ -111,10 +111,6 @@ def load_state():
 def save_state(state):
     with open(STATE_PATH, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2, sort_keys=True)
-
-
-def state_key(origin, destination, depart_date, flight_number):
-    return f"{origin}|{destination}|{depart_date}|{flight_number}"
 
 
 # ---------------------------------------------------------------------------
@@ -238,7 +234,9 @@ def summarize_route(origin, destination, fares):
 def check_route(origin, destination, fares, state):
     """Compare the cheapest fare found this run against the recorded 'best
     price ever seen' for this route. Returns a single event dict if this
-    run's cheapest fare is a new record low, else None. Mutates `state`."""
+    run's cheapest fare is a new record low, else None. Mutates `state`
+    ONLY when an event is found -- callers should not persist state when
+    nothing is returned."""
     if not fares:
         return None
 
@@ -292,7 +290,7 @@ def main():
     parser.add_argument("--verbose", action="store_true",
                          help="Print every direct fare found in the window, not just record-low ones.")
     parser.add_argument("--force-summary", action="store_true",
-                         help="Send the summary message even if nothing changed this run.")
+                         help="Send the summary message even if nothing changed this run (never writes state).")
     args = parser.parse_args()
 
     if not TP_TOKEN:
@@ -327,22 +325,26 @@ def main():
     for (origin, destination), fares in route_fares.items():
         summary_lines.append(summarize_route(origin, destination, fares))
 
-    # Always record a timestamp so the state file changes every run --
-    # keeps GitHub Actions from auto-disabling the schedule after 60 days
-    # of "no commits" if prices happen to stay flat that whole time.
-    state["_last_checked"] = datetime.now().isoformat()
-
-    if not events and not args.force_summary:
-        print("\nNo new record-low prices since last run -- not sending anything to Telegram.")
-    else:
+    if events:
+        # A real record-low was found -- notify AND persist the new baseline(s).
         send_telegram_message(
             BIG_WARNING + "\n\n" + "\n\n".join(summary_lines),
             dry_run=args.dry_run,
         )
         for ev in events:
             send_telegram_message(build_event_message(ev), dry_run=args.dry_run)
-
-    save_state(state)
+        save_state(state)
+    elif args.force_summary:
+        # Manually requested summary -- send it, but nothing changed, so
+        # don't touch flight_state.json.
+        send_telegram_message(
+            BIG_WARNING + "\n\n" + "\n\n".join(summary_lines),
+            dry_run=args.dry_run,
+        )
+        print("\n(Forced summary sent; no state changes to save.)")
+    else:
+        print("\nNo new record-low prices since last run -- not sending anything, "
+              "and not touching flight_state.json.")
 
 
 if __name__ == "__main__":
