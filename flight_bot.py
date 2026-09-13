@@ -77,7 +77,7 @@ ROUTES = [
 # confirmed via manual check on aviasales.com to be stale/mislabeled cache
 # entries that don't reflect a real bookable non-stop.
 IGNORED_FLIGHTS = {
-    # ("LED", "HRG", "UJ736"),
+    ("LED", "HRG", "UJ736"),
 }
 
 CURRENCY = "usd"
