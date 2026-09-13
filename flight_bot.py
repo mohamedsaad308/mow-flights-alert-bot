@@ -70,10 +70,8 @@ TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")
 # Outbound: home cities -> Egypt.
 TO_EGYPT_ROUTES = [
     ("MOW", "HRG"),  # Moscow -> Hurghada
-    ("MOW", "SSH"),  # Moscow -> Sharm El Sheikh
     ("MOW", "CAI"),  # Moscow -> Cairo
     ("LED", "HRG"),  # Saint Petersburg -> Hurghada
-    ("LED", "SSH"),  # Saint Petersburg -> Sharm El Sheikh
     ("LED", "CAI"),  # Saint Petersburg -> Cairo
     ("MSQ", "HRG"),  # Minsk -> Hurghada
     ("MSQ", "SSH"),  # Minsk -> Sharm El Sheikh
@@ -90,14 +88,15 @@ FROM_EGYPT_SET = set(FROM_EGYPT_ROUTES)
 # confirmed via manual check on aviasales.com to be stale/mislabeled cache
 # entries that don't reflect a real bookable non-stop.
 IGNORED_FLIGHTS = {
-    ("LED", "HRG", "UJ736"),
+    # ("LED", "HRG", "UJ736"),
 }
 
 CURRENCY = "usd"
-DATE_RANGE_DAYS = 9  # today through today + (DATE_RANGE_DAYS - 1)
+DATE_RANGE_DAYS = 10  # today through today + (DATE_RANGE_DAYS - 1)
 REQUEST_PAUSE_SECONDS = 0.15  # small pause between API calls to be gentle on rate limits
 STATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "flight_state.json")
 MIN_PRICE_DROP_USD = 10  # ignore drops smaller than this -- avoid $1 noise
+AFFILIATE_MARKER = "776670"  # Travelpayouts affiliate marker -- appended to every link
 
 TP_PRICES_FOR_DATES_URL = "https://api.travelpayouts.com/aviasales/v3/prices_for_dates"
 TG_SEND_URL_TMPL = "https://api.telegram.org/bot{token}/sendMessage"
@@ -179,7 +178,7 @@ def fetch_direct_fares(origin, destination):
 def aviasales_link(origin, destination, depart_date_str):
     d = datetime.strptime(depart_date_str, "%Y-%m-%d")
     segment = f"{origin}{d:%d%m}{destination}1"  # 1 adult passenger
-    return f"https://www.aviasales.com/search/{segment}"
+    return f"https://www.aviasales.com/search/{segment}?marker={AFFILIATE_MARKER}"
 
 
 def format_duration(minutes):
