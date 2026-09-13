@@ -4,8 +4,12 @@
   "cheapest|HRG|MOW": 106,
   "cheapest|HRG|MSQ": 253,
   "cheapest|LED|HRG": 579,
+  "cheapest|LED|SSH": 342,
   "cheapest|MOW|CAI": 292,
   "cheapest|MOW|HRG": 304,
+  "cheapest|MOW|SSH": 193,
   "cheapest|MSQ|HRG": 1215,
+  "cheapest|SSH|LED": 102,
+  "cheapest|SSH|MOW": 133,
   "cheapest|SSH|MSQ": 230
 }
