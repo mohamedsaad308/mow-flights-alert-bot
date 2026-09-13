@@ -81,7 +81,7 @@ IGNORED_FLIGHTS = {
 }
 
 CURRENCY = "usd"
-DATE_RANGE_DAYS = 7  # today through today + (DATE_RANGE_DAYS - 1)
+DATE_RANGE_DAYS = 9  # today through today + (DATE_RANGE_DAYS - 1)
 REQUEST_PAUSE_SECONDS = 0.15  # small pause between API calls to be gentle on rate limits
 STATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "flight_state.json")
 MIN_PRICE_DROP_USD = 10  # ignore drops smaller than this -- avoid $1 noise
