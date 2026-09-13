@@ -70,7 +70,7 @@ ROUTES = [
     ("LED", "HRG"),  # Saint Petersburg -> Hurghada
     ("LED", "CAI"),  # Saint Petersburg -> Cairo
     ("MSQ", "HRG"),  # Minsk -> Hurghada
-    ("MSQ", "CAI"),  # Minsk -> Cairo
+    ("MSQ", "SSH"),  # Minsk -> Cairo
 ]
 
 # Specific (origin, destination, flight_number) combos to hardcode-ignore --
