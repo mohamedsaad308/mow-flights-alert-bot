@@ -1,11 +1,9 @@
 name: Flight Price Watcher
 
 on:
-  schedule:
-    - cron: '*/20 * * * *'
-  workflow_dispatch: {}
+  workflow_dispatch: {}       # triggered externally on a schedule (see README) -- GitHub's own cron is unreliable at short intervals
   push:
-    branches: [master]   # or master, or omit "branches" to run on all pushes
+    branches: [master]
 
 permissions:
   contents: write   # needed so the workflow can commit the updated state file
