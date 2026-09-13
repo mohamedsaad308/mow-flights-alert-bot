@@ -90,10 +90,7 @@ TP_PRICES_FOR_DATES_URL = "https://api.travelpayouts.com/aviasales/v3/prices_for
 TG_SEND_URL_TMPL = "https://api.telegram.org/bot{token}/sendMessage"
 
 BIG_WARNING = (
-    "⚠️⚠️⚠️ <b>IMPORTANT</b> ⚠️⚠️⚠️\n"
-    "This data is from a search <b>cache</b>, not a live check. Fares shown may "
-    "already be sold out, expired, or actually require a connection. "
-    "<b>Always confirm on Aviasales before booking anything.</b>"
+    "⚠️ <i>Cached data, not live — verify on Aviasales before booking.</i>"
 )
 
 
@@ -216,18 +213,25 @@ def send_telegram_message(text, dry_run=False):
 # ---------------------------------------------------------------------------
 
 def summarize_route(origin, destination, fares):
-    """Print + return the one-line 'does this route have direct flights' summary."""
-    route_label = f"{origin} -> {destination}"
+    """Print + return the one-line 'does this route have direct flights' summary,
+    and a nicely formatted HTML block for Telegram."""
+    route_label = f"{origin} → {destination}"
     if fares:
         cheapest = min(fares, key=lambda f: f.get("price", float("inf")))
         depart_date = cheapest.get("departure_at", "")[:10]
         link = aviasales_link(origin, destination, depart_date)
-        line = (f"[{route_label}] {len(fares)} direct flight(s) found in the next "
-                f"{DATE_RANGE_DAYS} days (cheapest: ${cheapest.get('price')} on "
-                f"{depart_date}, {format_duration(cheapest.get('duration'))}) -> {link}")
+        line = (
+            f"<b>{route_label}</b>  ({len(fares)} found)\n"
+            f"    💰 <b>${cheapest.get('price')}</b> · {depart_date} · "
+            f"{format_duration(cheapest.get('duration'))}\n"
+            f"    <a href=\"{link}\">View on Aviasales</a>"
+        )
+        print_line = (f"[{route_label}] {len(fares)} direct flight(s), cheapest "
+                       f"${cheapest.get('price')} on {depart_date}")
     else:
-        line = f"[{route_label}] No direct flights found in the next {DATE_RANGE_DAYS} days."
-    print(line)
+        line = f"<b>{route_label}</b>  — none found"
+        print_line = f"[{route_label}] No direct flights found"
+    print(print_line)
     return line
 
 
@@ -265,15 +269,20 @@ def check_route(origin, destination, fares, state):
 
 
 def build_event_message(ev):
-    duration_note = f" ({format_duration(ev['duration'])} flight)" if ev.get("duration") else ""
+    duration_note = f" · {format_duration(ev['duration'])}" if ev.get("duration") else ""
     if ev["old_price"] is None:
-        headline = f"🆕 First direct fare seen for <b>{ev['origin']} → {ev['destination']}</b>"
+        headline = f"🆕 <b>{ev['origin']} → {ev['destination']}</b> — first fare seen"
+        price_line = f"💰 <b>${ev['price']}</b>"
     else:
-        headline = (f"📉 New record-low price for <b>{ev['origin']} → {ev['destination']}</b>: "
-                    f"${ev['old_price']} → <b>${ev['price']}</b>")
-    return (f"{headline}\n"
-            f"Departs: {ev['departure_at']}  Flight: {ev['flight_number']}{duration_note}\n"
-            f"{ev['link']}")
+        headline = f"📉 <b>{ev['origin']} → {ev['destination']}</b> — new record low"
+        price_line = f"💰 ${ev['old_price']} → <b>${ev['price']}</b>"
+    depart = ev["departure_at"].replace("T", "  ")[:16]
+    return (
+        f"{headline}\n"
+        f"{price_line}{duration_note}\n"
+        f"🛫 {depart}   ✈️ {ev['flight_number']}\n"
+        f"<a href=\"{ev['link']}\">Book / verify</a>"
+    )
 
 
 def main():
@@ -314,7 +323,7 @@ def main():
             events.append(ev)
 
     print(f"\n=== Summary (next {DATE_RANGE_DAYS} days) ===")
-    summary_lines = [f"📊 <b>Summary</b> (next {DATE_RANGE_DAYS} days):"]
+    summary_lines = [f"📊 <b>Flight Summary</b> · next {DATE_RANGE_DAYS} days\n"]
     for (origin, destination), fares in route_fares.items():
         summary_lines.append(summarize_route(origin, destination, fares))
 
@@ -326,7 +335,10 @@ def main():
     if not events and not args.force_summary:
         print("\nNo new record-low prices since last run -- not sending anything to Telegram.")
     else:
-        send_telegram_message(BIG_WARNING + "\n\n" + "\n".join(summary_lines), dry_run=args.dry_run)
+        send_telegram_message(
+            BIG_WARNING + "\n\n" + "\n\n".join(summary_lines),
+            dry_run=args.dry_run,
+        )
         for ev in events:
             send_telegram_message(build_event_message(ev), dry_run=args.dry_run)
 
