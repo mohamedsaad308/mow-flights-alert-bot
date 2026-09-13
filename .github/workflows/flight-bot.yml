@@ -40,4 +40,9 @@ jobs:
       - name: Debug token validity (temporary)
         env:
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
-        run: curl -s "https://api.telegram.org/bot${TG_BOT_TOKEN}/getMe"
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          curl -s -o /dev/null -w "HTTP %{http_code}\n" \
+            -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TG_CHAT_ID}" \
+            -d text="✅ Flight bot workflow test message"
