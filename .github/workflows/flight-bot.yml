@@ -8,15 +8,23 @@ on:
 permissions:
   contents: write   # needed so the workflow can commit the updated state file
 
+# Two overlapping runs would both try to push flight_state.json and the second
+# would be rejected, silently losing that run's baselines. Queue them instead.
+concurrency:
+  group: flight-watcher
+  cancel-in-progress: false
+
 jobs:
   check-flights:
     runs-on: ubuntu-latest
+    timeout-minutes: 15   # a hung request shouldn't burn a 6-hour runner slot
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -29,9 +37,30 @@ jobs:
         run: python flight_bot.py
 
       - name: Commit updated state file
+        if: always()   # still save baselines even if a later step is added and fails
         run: |
+          set -euo pipefail
+          if [ ! -f flight_state.json ]; then
+            echo "No state file produced (the bot probably exited early) -- nothing to commit."
+            exit 0
+          fi
           git config user.name "flight-bot"
           git config user.email "flight-bot@users.noreply.github.com"
-          git add flight_state.json
-          git diff --quiet --cached || git commit -m "Update flight price state [skip ci]"
-          git push
+          git add -- flight_state.json
+          if git diff --quiet --cached; then
+            echo "State unchanged -- nothing to commit."
+            exit 0
+          fi
+          git commit -m "Update flight price state [skip ci]"
+          # Another run may have pushed while we were querying the API.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Push rejected, rebasing and retrying ($attempt/3)..."
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+            sleep 5
+          done
+          echo "Could not push state after 3 attempts." >&2
+          exit 1
