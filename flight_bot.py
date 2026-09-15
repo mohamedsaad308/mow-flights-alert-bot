@@ -324,7 +324,7 @@ def fetch_direct_fares(session, origin, destination, dates, daily=False):
 def aviasales_link(origin, destination, depart_date_str):
     d = datetime.strptime(depart_date_str, "%Y-%m-%d")
     segment = f"{origin}{d:%d%m}{destination}1"  # 1 adult passenger
-    return f"https://www.aviasales.com/search/{segment}?marker={AFFILIATE_MARKER}"
+    return f"https://www.aviasales.ru/search/{segment}?marker={AFFILIATE_MARKER}"
 
 
 def format_duration(minutes):
