@@ -397,11 +397,11 @@
       "seen": "2026-09-15"
     },
     "LED|HRG|2026-09-21": {
-      "price": 702,
+      "price": 160,
       "seen": "2026-09-15"
     },
     "LED|HRG|2026-09-22": {
-      "price": 177,
+      "price": 169,
       "seen": "2026-09-15"
     },
     "LED|HRG|2026-09-23": {
@@ -810,8 +810,7 @@
     "MSQ|HRG",
     "SSH|LED",
     "SSH|MOW",
-    "SSH|MSQ",
-    "MSQ|SSH"
+    "SSH|MSQ"
   ],
   "version": 2
 }
