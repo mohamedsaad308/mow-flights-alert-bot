@@ -753,7 +753,7 @@
       "seen": "2026-09-15"
     },
     "MSQ|SSH|2026-09-24": {
-      "price": 1562,
+      "price": 1538,
       "seen": "2026-09-15"
     },
     "MSQ|SSH|2026-09-27": {
@@ -810,7 +810,8 @@
     "MSQ|HRG",
     "SSH|LED",
     "SSH|MOW",
-    "SSH|MSQ"
+    "SSH|MSQ",
+    "MSQ|SSH"
   ],
   "version": 2
 }
