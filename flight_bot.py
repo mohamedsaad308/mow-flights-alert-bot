@@ -92,15 +92,17 @@ TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")
 # Outbound: home cities -> Egypt.
 TO_EGYPT_ROUTES = [
     ("MOW", "HRG"),  # Moscow -> Hurghada
-    ("MOW", "CAI"),  # Moscow -> Cairo
+    # ("MOW", "CAI"),  # Moscow -> Cairo
     ("LED", "HRG"),  # Saint Petersburg -> Hurghada
-    ("LED", "CAI"),  # Saint Petersburg -> Cairo
+    # ("LED", "CAI"),  # Saint Petersburg -> Cairo
     ("MSQ", "HRG"),  # Minsk -> Hurghada
     ("MSQ", "SSH"),  # Minsk -> Sharm El Sheikh
 ]
 
 # Return leg: Egypt -> home cities (mirror of the above).
-FROM_EGYPT_ROUTES = [(dst, src) for (src, dst) in TO_EGYPT_ROUTES]
+FROM_EGYPT_ROUTES = [
+    # (dst, src) for (src, dst) in TO_EGYPT_ROUTES
+    ]
 
 ROUTES = TO_EGYPT_ROUTES + FROM_EGYPT_ROUTES
 TO_EGYPT_SET = set(TO_EGYPT_ROUTES)
@@ -113,7 +115,7 @@ IGNORED_FLIGHTS = {
 }
 
 CURRENCY = "usd"
-DATE_RANGE_DAYS = 30           # today through today + (DATE_RANGE_DAYS - 1)
+DATE_RANGE_DAYS = 10           # today through today + (DATE_RANGE_DAYS - 1)
 RECORD_TTL_DAYS = 14           # baselines older than this are reset, not trusted
 MIN_PRICE_DROP_USD = 10        # ignore drops smaller than this -- avoid $1 noise
 MAX_DROPS_PER_ROUTE = 3        # only report the N best drops per route, not a wall
