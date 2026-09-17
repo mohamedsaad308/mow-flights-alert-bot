@@ -17,26 +17,32 @@ LED->HRG/UJ736 fare that did not appear as non-stop on the live site).
 
 How the alerting works (and why it's built this way)
 ----------------------------------------------------
-The naive version of this bot tracks one "cheapest ever seen" number per
-route. That breaks in two ways: (1) a single stale/bogus cached fare sets a
-floor no real fare can ever beat, silencing the route forever, and (2) the
-window rolls forward daily, so you end up comparing a Tuesday fare against a
-Saturday record -- numbers that were never comparable to begin with.
+Baselines are tracked per ROUTE, not per (route, departure date). Each route
+has exactly one number: the cheapest direct fare seen anywhere in the
+30-day window, for any date. A run only alerts when some fare -- on any
+date -- beats that route's record. This means at most ONE drop alert per
+route per run, and it's always a genuine improvement on the best option
+currently on the table, not just a dip on some specific Tuesday that's
+still worse than what's available on Saturday.
 
-So instead:
+(An earlier version of this bot tracked baselines per (route, date) instead.
+That caused a confusing failure mode: a date could "drop" relative to its
+own history while still being far more expensive than the route's actual
+cheapest date, producing alerts for fares nobody would want to book.)
 
-- Baselines are stored per (route, departure date), not per route. Each
-  date is compared only against its own history.
-- Baselines EXPIRE after RECORD_TTL_DAYS. An expired baseline is silently
-  reset to the current price rather than alerting, so a bogus low self-heals
-  within two weeks instead of poisoning the route indefinitely.
-- A date entering the window for the first time does NOT alert -- it just
-  records a baseline. Otherwise the rolling window would fire one "new fare"
-  alert per route per day, forever.
+- Baselines EXPIRE after RECORD_TTL_DAYS if never reconfirmed (i.e. no fare
+  in the window has matched or beaten the recorded price for that long).
+  An expired baseline is silently reset to the current cheapest fare rather
+  than alerting, so a bogus low self-heals within two weeks instead of
+  permanently blocking real alerts on that route.
+- A route's FIRST sighting of any fares does NOT alert -- it just records
+  the baseline (the "wakeup" case below still fires once, see next point).
 - A route DOES alert when it wakes up: if it had no known fares at all and
-  now has some, that's a "direct flights appeared" event.
-- Past dates and long-untouched entries are pruned every run, so the state
-  file doesn't grow without bound.
+  now has some, that's a "direct flights appeared" event (uses the cheapest
+  fare found).
+- Routes that go confirmed-empty for several days in a row are forgotten
+  (see EMPTY_GRACE_DAYS), so a route reappearing later re-triggers a
+  wakeup event instead of staying silent forever.
 
 What it sends
 -------------
@@ -118,12 +124,11 @@ DATE_RANGE_DAYS = 30           # today through today + (DATE_RANGE_DAYS - 1)
 RECORD_TTL_DAYS = 14           # baselines older than this are reset, not trusted
 EMPTY_GRACE_DAYS = 3           # confirmed-empty days required before forgetting a route
 MIN_PRICE_DROP_USD = 10        # ignore drops smaller than this -- avoid $1 noise
-MAX_DROPS_PER_ROUTE = 3        # only report the N best drops per route, not a wall
 REQUEST_PAUSE_SECONDS = 0.15   # small pause between API calls
 REQUEST_TIMEOUT = 20
 
 STATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "flight_state.json")
-STATE_VERSION = 2
+STATE_VERSION = 3
 
 AFFILIATE_MARKER = "776670"  # Travelpayouts affiliate marker -- appended to every link
 
@@ -153,24 +158,29 @@ def build_session():
         respect_retry_after_header=True,
     )
     session.mount("https://", HTTPAdapter(max_retries=retry))
-    session.headers.update({"User-Agent": "flight-price-watcher/2.0"})
+    session.headers.update({"User-Agent": "flight-price-watcher/3.0"})
     return session
 
 
 # ---------------------------------------------------------------------------
 # State
 #
-# Schema (v2):
+# Schema (v3):
 # {
-#   "version": 2,
+#   "version": 3,
 #   "records": {
-#       "MOW|HRG|2026-10-04": {"price": 212, "seen": "2026-09-15"},
+#       "MOW|HRG": {"price": 212, "date": "2026-10-04", "seen": "2026-09-15"},
 #       ...
 #   },
 #   "routes_with_fares": ["MOW|HRG", ...]   # routes known to have direct fares
 #   "empty_since": {"MOW|SSH": "2026-09-15"}  # first day a known route came
 #                                              # back with zero confirmed fares
 # }
+#
+# One record per ROUTE (not per date): "price" is the cheapest direct fare
+# ever confirmed for that route within the rolling window, "date" is which
+# departure date it was on (informational only), "seen" is the last run on
+# which that price was matched or beaten by something in the window.
 # ---------------------------------------------------------------------------
 
 def load_state():
@@ -184,16 +194,22 @@ def load_state():
         return empty_shell
 
     if raw.get("version") != STATE_VERSION:
-        # v1 kept a single "cheapest|ORIGIN|DEST" number per route, which is
-        # exactly the ratcheting baseline this version exists to replace.
-        # Nothing to migrate -- start clean, but remember which routes were
-        # already known to have fares so we don't re-announce all of them.
-        known = []
-        for key in raw:
+        # Older schemas tracked baselines per (route, date) or as a single
+        # ratcheting "cheapest ever" string key. Rather than try to migrate
+        # exact numbers across a schema change (risk of carrying forward a
+        # stale/bogus low), we start records clean but preserve which routes
+        # were already known to have fares, so we don't re-announce all of
+        # them as "wakeup" events on the next run.
+        known = set()
+        for key in raw.get("routes_with_fares", []):
+            known.add(key)
+        for key in raw.get("records", {}):
             parts = key.split("|")
-            if len(parts) == 3 and parts[0] == "cheapest":
-                known.append(f"{parts[1]}|{parts[2]}")
-        return {"version": STATE_VERSION, "records": {}, "routes_with_fares": known, "empty_since": {}}
+            if len(parts) == 3:  # v2 per-date key: ORIGIN|DEST|DATE
+                known.add(f"{parts[0]}|{parts[1]}")
+            elif len(parts) == 3 and parts[0] == "cheapest":  # v1 key
+                known.add(f"{parts[1]}|{parts[2]}")
+        return {"version": STATE_VERSION, "records": {}, "routes_with_fares": sorted(known), "empty_since": {}}
 
     raw.setdefault("records", {})
     raw.setdefault("routes_with_fares", [])
@@ -208,19 +224,13 @@ def save_state(state):
     os.replace(tmp_path, STATE_PATH)  # atomic -- never leaves a half-written file
 
 
-def prune_state(state, today):
-    """Drop records for dates that have already departed, and records whose
-    last sighting is older than the TTL. Returns the number removed."""
-    cutoff = (today - timedelta(days=RECORD_TTL_DAYS)).isoformat()
-    doomed = []
-    for key, rec in state["records"].items():
-        try:
-            depart_date = key.rsplit("|", 1)[1]
-        except IndexError:
-            doomed.append(key)
-            continue
-        if depart_date < today.isoformat() or rec.get("seen", "") < cutoff:
-            doomed.append(key)
+def prune_state(state):
+    """Drop records for routes that are no longer tracked at all (e.g. the
+    ROUTES list changed). Route-level records don't go stale by date the way
+    per-date records used to -- TTL expiry in check_route() already handles
+    a record that's stopped being reconfirmed. Returns the number removed."""
+    valid_keys = {f"{o}|{d}" for o, d in ROUTES}
+    doomed = [key for key in state["records"] if key not in valid_keys]
     for key in doomed:
         del state["records"][key]
     return len(doomed)
@@ -339,11 +349,7 @@ def format_duration(minutes):
 
 
 def format_departure(departure_at):
-    """'2026-10-04T10:30:00+03:00' -> '2026-10-04 10:30'.
-
-    The old version did .replace("T", "  ")[:16], which swapped one character
-    for two and then sliced at the original offset -- chopping the minutes in
-    half ('10:3')."""
+    """'2026-10-04T10:30:00+03:00' -> '2026-10-04 10:30'."""
     if not departure_at:
         return "unknown"
     try:
@@ -409,28 +415,30 @@ def send_telegram_message(session, text, dry_run=False):
 # ---------------------------------------------------------------------------
 
 def check_route(origin, destination, fares, failed, state, today):
-    """Compare each date's cheapest fare against that date's own baseline.
-
-    Returns a list of events. Mutates `state`.
+    """Compare this run's cheapest fare (any date in the window) against the
+    route's all-time-record baseline. Returns a list of at most one event.
+    Mutates `state`.
     """
     route_key = f"{origin}|{destination}"
     known_route = route_key in state["routes_with_fares"]
+    today_str = today.isoformat()
     events = []
 
     if not fares:
         # Confirmed empty (not an API failure). A single empty run is common
         # cache noise, not proof the route died -- forgetting it immediately
-        # (as v2.0 did) meant the very next run's fare, even at an unchanged
-        # price, re-fired as "direct flights appeared" because the route was
-        # no longer "known". Only forget after several straight confirmed-
-        # empty days, so a real fare reappearing at the same price stays
-        # silent like it should.
+        # meant the very next run's fare, even at an unchanged price, would
+        # re-fire as "direct flights appeared" because the route was no
+        # longer "known". Only forget after several straight confirmed-empty
+        # days, so a real fare reappearing at the same price stays silent
+        # like it should.
         if failed == 0 and known_route:
             first_empty = state["empty_since"].get(route_key)
             if first_empty is None:
-                state["empty_since"][route_key] = today.isoformat()
+                state["empty_since"][route_key] = today_str
             elif (today - date.fromisoformat(first_empty)).days >= EMPTY_GRACE_DAYS:
                 state["routes_with_fares"].remove(route_key)
+                state["records"].pop(route_key, None)
                 del state["empty_since"][route_key]
         return events
 
@@ -438,58 +446,47 @@ def check_route(origin, destination, fares, failed, state, today):
     # doesn't carry over to some future gap.
     state["empty_since"].pop(route_key, None)
 
-    # Cheapest fare per departure date.
-    by_date = {}
-    for fare in fares:
-        depart_date = (fare.get("departure_at") or "")[:10]
-        if not depart_date:
-            continue
-        current = by_date.get(depart_date)
-        if current is None or fare["price"] < current["price"]:
-            by_date[depart_date] = fare
-
-    today_str = today.isoformat()
-    drops = []
-
-    for depart_date, fare in by_date.items():
-        key = f"{origin}|{destination}|{depart_date}"
-        record = state["records"].get(key)
-        price = fare["price"]
-
-        if record is None:
-            # First time we've seen this date. Record it silently -- alerting
-            # here would fire once per route per day as the window rolls.
-            state["records"][key] = {"price": price, "seen": today_str}
-            continue
-
-        expired = record.get("seen", "") < (today - timedelta(days=RECORD_TTL_DAYS)).isoformat()
-        if expired:
-            # Stale baseline (possibly a bogus cached low). Reset, don't alert.
-            state["records"][key] = {"price": price, "seen": today_str}
-            continue
-
-        old_price = record.get("price")
-        if old_price is not None and (old_price - price) >= MIN_PRICE_DROP_USD:
-            drops.append(make_event("drop", origin, destination, fare, old_price))
-            state["records"][key] = {"price": price, "seen": today_str}
-        elif old_price is not None and price < old_price:
-            # Real but tiny drop: track it, stay quiet.
-            state["records"][key] = {"price": price, "seen": today_str}
-        else:
-            # Same or higher: refresh the timestamp so a live baseline isn't
-            # expired out from under us, but keep the lower recorded price.
-            record["seen"] = today_str
+    best = cheapest_of(fares)  # cheapest fare on ANY date in this run's window
+    price = best["price"]
+    depart_date = (best.get("departure_at") or "")[:10]
 
     if not known_route:
-        # This route had no fares on record and now does -- worth announcing
-        # once, which is the original "direct flights appeared" alert.
+        # Route had no fares on record and now does -- announce once. This
+        # also seeds the baseline, so it does NOT also fire a drop event.
         state["routes_with_fares"].append(route_key)
-        best = cheapest_of(fares)
+        state["records"][route_key] = {"price": price, "date": depart_date, "seen": today_str}
         events.append(make_event("wakeup", origin, destination, best))
         return events
 
-    drops.sort(key=lambda e: (e["old_price"] - e["price"]), reverse=True)
-    events.extend(drops[:MAX_DROPS_PER_ROUTE])
+    record = state["records"].get(route_key)
+    if record is None:
+        # Known route but no baseline yet (defensive -- e.g. state file was
+        # hand-edited, or migrated from an older schema). Seed silently.
+        state["records"][route_key] = {"price": price, "date": depart_date, "seen": today_str}
+        return events
+
+    expired = record.get("seen", "") < (today - timedelta(days=RECORD_TTL_DAYS)).isoformat()
+    if expired:
+        # The recorded low hasn't been matched or beaten in RECORD_TTL_DAYS --
+        # treat it as stale/possibly bogus and reset without alerting.
+        state["records"][route_key] = {"price": price, "date": depart_date, "seen": today_str}
+        return events
+
+    old_price = record.get("price")
+    if old_price is not None and (old_price - price) >= MIN_PRICE_DROP_USD:
+        # New record low, big enough to matter -- this is the ONLY alert case.
+        events.append(make_event("drop", origin, destination, best, old_price))
+        state["records"][route_key] = {"price": price, "date": depart_date, "seen": today_str}
+    elif old_price is not None and price <= old_price:
+        # Matches or slightly beats the record (below alert threshold) --
+        # ratchet quietly and confirm the baseline is still live.
+        state["records"][route_key] = {"price": price, "date": depart_date, "seen": today_str}
+    else:
+        # Today's cheapest fare is worse than the record -- the record price
+        # wasn't reconfirmed this run. Leave "seen" untouched; if this keeps
+        # happening for RECORD_TTL_DAYS, the expiry branch above resets it.
+        pass
+
     return events
 
 
@@ -549,7 +546,7 @@ def build_event_block(ev):
         headline = f"🆕 <b>{ev['origin']} → {ev['destination']}</b> — direct flights appeared"
         price_line = f"💰 <b>${ev['price']}</b>"
     else:
-        headline = f"📉 <b>{ev['origin']} → {ev['destination']}</b> — price drop"
+        headline = f"📉 <b>{ev['origin']} → {ev['destination']}</b> — new best price"
         price_line = f"💰 ${ev['old_price']} → <b>${ev['price']}</b>"
     return (
         f"{headline}\n"
@@ -596,7 +593,7 @@ def main():
     calls_per_route = len(dates) if args.daily_queries else len(months_in_window(dates))
 
     state = load_state()
-    pruned = prune_state(state, today)
+    pruned = prune_state(state)
 
     # Pass 1: fetch every route once (both directions).
     route_data = {}
@@ -615,7 +612,7 @@ def main():
                       f"{f.get('airline')}{f.get('flight_number')}  "
                       f"duration={format_duration(f.get('duration'))}")
 
-    # Pass 2: compare each date against its own baseline.
+    # Pass 2: compare each route's cheapest-this-run fare against its record.
     to_egypt_events, from_egypt_events = [], []
     for (origin, destination), (fares, _failed, _) in route_data.items():
         for ev in check_route(origin, destination, fares, _failed, state, today):
@@ -648,9 +645,8 @@ def main():
     else:
         print("\nNo alert-worthy changes since last run -- nothing sent.")
 
-    # Baselines move every run (new dates recorded, timestamps refreshed), so
-    # state is always persisted -- unlike v1, which only wrote on an alert and
-    # therefore kept re-detecting the same things.
+    # Baselines can move every run (new records seeded, timestamps refreshed),
+    # so state is always persisted, not just on an alert.
     if not args.dry_run:
         save_state(state)
     else:
