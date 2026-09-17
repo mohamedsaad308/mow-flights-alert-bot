@@ -92,19 +92,15 @@ TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")
 # Outbound: home cities -> Egypt.
 TO_EGYPT_ROUTES = [
     ("MOW", "HRG"),  # Moscow -> Hurghada
-    ("MOW", "SSH"),  # Moscow -> Sharm El Sheikh
-    # ("MOW", "CAI"),  # Moscow -> Cairo
+    ("MOW", "CAI"),  # Moscow -> Cairo
     ("LED", "HRG"),  # Saint Petersburg -> Hurghada
-    ("LED", "SSH"),  # Saint Petersburg -> Sharm El Sheikh
-    # ("LED", "CAI"),  # Saint Petersburg -> Cairo
+    ("LED", "CAI"),  # Saint Petersburg -> Cairo
     ("MSQ", "HRG"),  # Minsk -> Hurghada
     ("MSQ", "SSH"),  # Minsk -> Sharm El Sheikh
 ]
 
 # Return leg: Egypt -> home cities (mirror of the above).
-FROM_EGYPT_ROUTES = [
-    (dst, src) for (src, dst) in TO_EGYPT_ROUTES
-    ]
+FROM_EGYPT_ROUTES = [(dst, src) for (src, dst) in TO_EGYPT_ROUTES]
 
 ROUTES = TO_EGYPT_ROUTES + FROM_EGYPT_ROUTES
 TO_EGYPT_SET = set(TO_EGYPT_ROUTES)
@@ -117,8 +113,9 @@ IGNORED_FLIGHTS = {
 }
 
 CURRENCY = "usd"
-DATE_RANGE_DAYS = 10           # today through today + (DATE_RANGE_DAYS - 1)
+DATE_RANGE_DAYS = 30           # today through today + (DATE_RANGE_DAYS - 1)
 RECORD_TTL_DAYS = 14           # baselines older than this are reset, not trusted
+EMPTY_GRACE_DAYS = 3           # confirmed-empty days required before forgetting a route
 MIN_PRICE_DROP_USD = 10        # ignore drops smaller than this -- avoid $1 noise
 MAX_DROPS_PER_ROUTE = 3        # only report the N best drops per route, not a wall
 REQUEST_PAUSE_SECONDS = 0.15   # small pause between API calls
@@ -170,17 +167,20 @@ def build_session():
 #       ...
 #   },
 #   "routes_with_fares": ["MOW|HRG", ...]   # routes known to have direct fares
+#   "empty_since": {"MOW|SSH": "2026-09-15"}  # first day a known route came
+#                                              # back with zero confirmed fares
 # }
 # ---------------------------------------------------------------------------
 
 def load_state():
+    empty_shell = {"version": STATE_VERSION, "records": {}, "routes_with_fares": [], "empty_since": {}}
     if not os.path.exists(STATE_PATH):
-        return {"version": STATE_VERSION, "records": {}, "routes_with_fares": []}
+        return empty_shell
     try:
         with open(STATE_PATH, "r", encoding="utf-8") as f:
             raw = json.load(f)
     except (json.JSONDecodeError, OSError):
-        return {"version": STATE_VERSION, "records": {}, "routes_with_fares": []}
+        return empty_shell
 
     if raw.get("version") != STATE_VERSION:
         # v1 kept a single "cheapest|ORIGIN|DEST" number per route, which is
@@ -192,10 +192,11 @@ def load_state():
             parts = key.split("|")
             if len(parts) == 3 and parts[0] == "cheapest":
                 known.append(f"{parts[1]}|{parts[2]}")
-        return {"version": STATE_VERSION, "records": {}, "routes_with_fares": known}
+        return {"version": STATE_VERSION, "records": {}, "routes_with_fares": known, "empty_since": {}}
 
     raw.setdefault("records", {})
     raw.setdefault("routes_with_fares", [])
+    raw.setdefault("empty_since", {})
     return raw
 
 
@@ -326,7 +327,7 @@ def fetch_direct_fares(session, origin, destination, dates, daily=False):
 def aviasales_link(origin, destination, depart_date_str):
     d = datetime.strptime(depart_date_str, "%Y-%m-%d")
     segment = f"{origin}{d:%d%m}{destination}1"  # 1 adult passenger
-    return f"https://www.aviasales.ru/search/{segment}?marker={AFFILIATE_MARKER}"
+    return f"https://www.aviasales.com/search/{segment}?marker={AFFILIATE_MARKER}"
 
 
 def format_duration(minutes):
@@ -416,11 +417,25 @@ def check_route(origin, destination, fares, failed, state, today):
     events = []
 
     if not fares:
-        # Confirmed empty (not an API failure) -> forget that this route ever
-        # had fares, so if direct flights come back we announce them again.
+        # Confirmed empty (not an API failure). A single empty run is common
+        # cache noise, not proof the route died -- forgetting it immediately
+        # (as v2.0 did) meant the very next run's fare, even at an unchanged
+        # price, re-fired as "direct flights appeared" because the route was
+        # no longer "known". Only forget after several straight confirmed-
+        # empty days, so a real fare reappearing at the same price stays
+        # silent like it should.
         if failed == 0 and known_route:
-            state["routes_with_fares"].remove(route_key)
+            first_empty = state["empty_since"].get(route_key)
+            if first_empty is None:
+                state["empty_since"][route_key] = today.isoformat()
+            elif (today - date.fromisoformat(first_empty)).days >= EMPTY_GRACE_DAYS:
+                state["routes_with_fares"].remove(route_key)
+                del state["empty_since"][route_key]
         return events
+
+    # Fares present this run -- route is alive, clear any empty streak so it
+    # doesn't carry over to some future gap.
+    state["empty_since"].pop(route_key, None)
 
     # Cheapest fare per departure date.
     by_date = {}
