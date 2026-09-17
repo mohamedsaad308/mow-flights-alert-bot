@@ -92,9 +92,10 @@ TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")
 # Outbound: home cities -> Egypt.
 TO_EGYPT_ROUTES = [
     ("MOW", "HRG"),  # Moscow -> Hurghada
+    ("MOW", "SSH"),  # Moscow -> Sharm El Sheikh
     ("MOW", "CAI"),  # Moscow -> Cairo
     ("LED", "HRG"),  # Saint Petersburg -> Hurghada
-    ("LED", "CAI"),  # Saint Petersburg -> Cairo
+    ("LED", "SSH"),  # Saint Petersburg -> Sharm El Sheikh
     ("MSQ", "HRG"),  # Minsk -> Hurghada
     ("MSQ", "SSH"),  # Minsk -> Sharm El Sheikh
 ]
