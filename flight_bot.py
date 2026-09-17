@@ -103,7 +103,7 @@ TO_EGYPT_ROUTES = [
 
 # Return leg: Egypt -> home cities (mirror of the above).
 FROM_EGYPT_ROUTES = [
-    # (dst, src) for (src, dst) in TO_EGYPT_ROUTES
+    (dst, src) for (src, dst) in TO_EGYPT_ROUTES
     ]
 
 ROUTES = TO_EGYPT_ROUTES + FROM_EGYPT_ROUTES
