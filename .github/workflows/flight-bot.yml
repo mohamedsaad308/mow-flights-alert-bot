@@ -1,23 +1,26 @@
 name: Flight Price Watcher
 
 on:
-  workflow_dispatch: {}       # triggered externally on a schedule (see README) -- GitHub's own cron is unreliable at short intervals
+  workflow_dispatch: {}
   push:
-    branches: [master]
+    branches: [master, dev]          # CHANGED: dev also runs on push
 
 permissions:
-  contents: write   # needed so the workflow can commit the updated state file
+  contents: write
 
-# Two overlapping runs would both try to push flight_state.json and the second
-# would be rejected, silently losing that run's baselines. Queue them instead.
 concurrency:
-  group: flight-watcher
+  group: flight-watcher-${{ github.ref_name }}   # CHANGED: dev and master no longer block each other
   cancel-in-progress: false
 
 jobs:
   check-flights:
     runs-on: ubuntu-latest
-    timeout-minutes: 15   # a hung request shouldn't burn a 6-hour runner slot
+    timeout-minutes: 15
+    # CHANGED: picks the environment (and so the secrets) by branch
+    environment: ${{ github.ref_name == 'master' && 'production' || 'test' }}
+    env:
+      # CHANGED: separate state file per branch
+      STATE_FILE: ${{ github.ref_name == 'master' && 'flight_state.json' || 'flight_state_test.json' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,22 +40,21 @@ jobs:
         run: python flight_bot.py
 
       - name: Commit updated state file
-        if: always()   # still save baselines even if a later step is added and fails
+        if: always()
         run: |
           set -euo pipefail
-          if [ ! -f flight_state.json ]; then
-            echo "No state file produced (the bot probably exited early) -- nothing to commit."
+          if [ ! -f "$STATE_FILE" ]; then
+            echo "No state file produced -- nothing to commit."
             exit 0
           fi
           git config user.name "flight-bot"
           git config user.email "flight-bot@users.noreply.github.com"
-          git add -- flight_state.json
+          git add -- "$STATE_FILE"
           if git diff --quiet --cached; then
             echo "State unchanged -- nothing to commit."
             exit 0
           fi
           git commit -m "Update flight price state [skip ci]"
-          # Another run may have pushed while we were querying the API.
           for attempt in 1 2 3; do
             if git push; then
               echo "Pushed on attempt $attempt."
