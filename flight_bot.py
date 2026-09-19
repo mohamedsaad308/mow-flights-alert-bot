@@ -18,23 +18,32 @@ LED->HRG/UJ736 fare that did not appear as non-stop on the live site).
 How the alerting works (and why it's built this way)
 ----------------------------------------------------
 Baselines are tracked per ROUTE, not per (route, departure date). Each route
-has exactly one number: the cheapest direct fare seen anywhere in the
-30-day window, for any date. A run only alerts when some fare -- on any
-date -- beats that route's record. This means at most ONE drop alert per
-route per run, and it's always a genuine improvement on the best option
-currently on the table, not just a dip on some specific Tuesday that's
-still worse than what's available on Saturday.
+has exactly one record: the cheapest direct fare seen anywhere in the
+30-day window, for any date and any airline. Alerts are purely price-based;
+airline and flight number are shown in the alert but never affect whether
+one fires.
 
-(An earlier version of this bot tracked baselines per (route, date) instead.
-That caused a confusing failure mode: a date could "drop" relative to its
-own history while still being far more expensive than the route's actual
-cheapest date, producing alerts for fares nobody would want to book.)
+Each run, the route's cheapest fare is compared with the record price:
 
-- Baselines EXPIRE after RECORD_TTL_DAYS if never reconfirmed (i.e. no fare
-  in the window has matched or beaten the recorded price for that long).
-  An expired baseline is silently reset to the current cheapest fare rather
-  than alerting, so a bogus low self-heals within two weeks instead of
-  permanently blocking real alerts on that route.
+- A fare at or below the record exists: the record price is still on the
+  market. The miss counter goes back to 0. If the fare is at least
+  MIN_PRICE_DROP_USD below the record, an alert fires. The record is
+  lowered to the new price.
+- No fare at or below the record exists: the record price was not
+  reconfirmed. The miss counter goes up by 1 and nothing else changes.
+  This run does NOT count as a miss if some API calls failed (the record
+  fare may just be in the part we couldn't see).
+- The miss counter reaches MAX_MISSES: the record price is considered gone
+  (sold out / expired from the cache). The record is silently reset to the
+  current cheapest fare. No alert.
+
+Why a counter instead of resetting on the first miss: the cached data
+flickers. A fare can vanish for one run and come back, which would cause a
+duplicate "new best price" alert if we reset immediately.
+
+- RECORD_TTL_DAYS is only a safety net for the case where the bot didn't run
+  for days (so misses couldn't accumulate). A record not reconfirmed for that
+  long is reset silently on the next miss.
 - A route's FIRST sighting of any fares does NOT alert -- it just records
   the baseline (the "wakeup" case below still fires once, see next point).
 - A route DOES alert when it wakes up: if it had no known fares at all and
@@ -42,7 +51,8 @@ cheapest date, producing alerts for fares nobody would want to book.)
   fare found).
 - Routes that go confirmed-empty for several days in a row are forgotten
   (see EMPTY_GRACE_DAYS), so a route reappearing later re-triggers a
-  wakeup event instead of staying silent forever.
+  wakeup event instead of staying silent forever. An empty result is "no
+  data", not a miss on the record price, so it doesn't touch the counter.
 
 What it sends
 -------------
@@ -53,7 +63,8 @@ At most three Telegram messages per run, only when something changed:
 A direction with no events that run simply doesn't get a message.
 
 Use --dry-run to print alerts to the terminal instead of sending them,
-and --verbose to see every fare found.
+and --verbose to see every fare found. Note: --dry-run does not save state,
+so the miss counter never accumulates in a dry run.
 
 Setup
 -----
@@ -121,13 +132,15 @@ IGNORED_FLIGHTS = {
 
 CURRENCY = "usd"
 DATE_RANGE_DAYS = 30           # today through today + (DATE_RANGE_DAYS - 1)
-RECORD_TTL_DAYS = 14           # baselines older than this are reset, not trusted
+MAX_MISSES = 3                 # consecutive runs without a fare at/below the record before it's declared gone
+RECORD_TTL_DAYS = 2            # safety net only: covers the bot not running for days (misses can't count then)
 EMPTY_GRACE_DAYS = 3           # confirmed-empty days required before forgetting a route
 MIN_PRICE_DROP_USD = 10        # ignore drops smaller than this -- avoid $1 noise
 REQUEST_PAUSE_SECONDS = 0.15   # small pause between API calls
 REQUEST_TIMEOUT = 20
 
-STATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "flight_state.json")
+STATE_FILE = os.environ.get("STATE_FILE", "flight_state.json")
+STATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), STATE_FILE)
 STATE_VERSION = 3
 
 AFFILIATE_MARKER = "776670"  # Travelpayouts affiliate marker -- appended to every link
@@ -169,7 +182,7 @@ def build_session():
 # {
 #   "version": 3,
 #   "records": {
-#       "MOW|HRG": {"price": 212, "date": "2026-10-04", "seen": "2026-09-15"},
+#       "MOW|HRG": {"price": 212, "date": "2026-10-04", "seen": "2026-09-15", "misses": 0},
 #       ...
 #   },
 #   "routes_with_fares": ["MOW|HRG", ...]   # routes known to have direct fares
@@ -178,9 +191,12 @@ def build_session():
 # }
 #
 # One record per ROUTE (not per date): "price" is the cheapest direct fare
-# ever confirmed for that route within the rolling window, "date" is which
-# departure date it was on (informational only), "seen" is the last run on
-# which that price was matched or beaten by something in the window.
+# currently on record for that route within the rolling window, "date" is
+# which departure date it was on (informational only), "seen" is the last run
+# on which that price was matched or beaten by something in the window, and
+# "misses" is how many consecutive runs have gone by without a fare at or
+# below that price (reset to 0 whenever one shows up). Records written before
+# the miss counter existed have no "misses" key and are treated as 0.
 # ---------------------------------------------------------------------------
 
 def load_state():
@@ -227,8 +243,9 @@ def save_state(state):
 def prune_state(state):
     """Drop records for routes that are no longer tracked at all (e.g. the
     ROUTES list changed). Route-level records don't go stale by date the way
-    per-date records used to -- TTL expiry in check_route() already handles
-    a record that's stopped being reconfirmed. Returns the number removed."""
+    per-date records used to -- the miss counter in check_route() already
+    handles a record that's stopped being reconfirmed. Returns the number
+    removed."""
     valid_keys = {f"{o}|{d}" for o, d in ROUTES}
     doomed = [key for key in state["records"] if key not in valid_keys]
     for key in doomed:
@@ -415,9 +432,15 @@ def send_telegram_message(session, text, dry_run=False):
 # ---------------------------------------------------------------------------
 
 def check_route(origin, destination, fares, failed, state, today):
-    """Compare this run's cheapest fare (any date in the window) against the
-    route's all-time-record baseline. Returns a list of at most one event.
-    Mutates `state`.
+    """Compare this run's cheapest fare (any date, any airline) against the
+    route's record price. Returns a list of at most one event. Mutates `state`.
+
+    Record = {"price", "date", "seen", "misses"}
+      - a fare at or below the record exists  -> misses = 0, alert if it is
+        MIN_PRICE_DROP_USD or more below, lower the record
+      - no such fare                          -> misses += 1, record untouched
+      - misses reaches MAX_MISSES             -> record price is gone (sold out),
+        silently adopt the current cheapest fare
     """
     route_key = f"{origin}|{destination}"
     known_route = route_key in state["routes_with_fares"]
@@ -425,13 +448,12 @@ def check_route(origin, destination, fares, failed, state, today):
     events = []
 
     if not fares:
-        # Confirmed empty (not an API failure). A single empty run is common
-        # cache noise, not proof the route died -- forgetting it immediately
-        # meant the very next run's fare, even at an unchanged price, would
-        # re-fire as "direct flights appeared" because the route was no
-        # longer "known". Only forget after several straight confirmed-empty
-        # days, so a real fare reappearing at the same price stays silent
-        # like it should.
+        # Confirmed empty (not an API failure). This is "no data", not a miss
+        # on the record price, so the miss counter is NOT touched here.
+        # A single empty run is common cache noise, not proof the route died
+        # -- forgetting it immediately meant the very next run's fare, even
+        # at an unchanged price, would re-fire as "direct flights appeared".
+        # Only forget after several straight confirmed-empty days.
         if failed == 0 and known_route:
             first_empty = state["empty_since"].get(route_key)
             if first_empty is None:
@@ -450,42 +472,48 @@ def check_route(origin, destination, fares, failed, state, today):
     price = best["price"]
     depart_date = (best.get("departure_at") or "")[:10]
 
+    def new_record():
+        return {"price": price, "date": depart_date, "seen": today_str, "misses": 0}
+
     if not known_route:
         # Route had no fares on record and now does -- announce once. This
         # also seeds the baseline, so it does NOT also fire a drop event.
         state["routes_with_fares"].append(route_key)
-        state["records"][route_key] = {"price": price, "date": depart_date, "seen": today_str}
+        state["records"][route_key] = new_record()
         events.append(make_event("wakeup", origin, destination, best))
         return events
 
     record = state["records"].get(route_key)
-    if record is None:
+    if record is None or record.get("price") is None:
         # Known route but no baseline yet (defensive -- e.g. state file was
         # hand-edited, or migrated from an older schema). Seed silently.
-        state["records"][route_key] = {"price": price, "date": depart_date, "seen": today_str}
+        state["records"][route_key] = new_record()
         return events
 
-    expired = record.get("seen", "") < (today - timedelta(days=RECORD_TTL_DAYS)).isoformat()
-    if expired:
-        # The recorded low hasn't been matched or beaten in RECORD_TTL_DAYS --
-        # treat it as stale/possibly bogus and reset without alerting.
-        state["records"][route_key] = {"price": price, "date": depart_date, "seen": today_str}
+    old_price = record["price"]
+
+    if price <= old_price:
+        # The record price (or better) is still on the market.
+        if old_price - price >= MIN_PRICE_DROP_USD:
+            events.append(make_event("drop", origin, destination, best, old_price))
+        state["records"][route_key] = new_record()  # ratchet down, misses back to 0
         return events
 
-    old_price = record.get("price")
-    if old_price is not None and (old_price - price) >= MIN_PRICE_DROP_USD:
-        # New record low, big enough to matter -- this is the ONLY alert case.
-        events.append(make_event("drop", origin, destination, best, old_price))
-        state["records"][route_key] = {"price": price, "date": depart_date, "seen": today_str}
-    elif old_price is not None and price <= old_price:
-        # Matches or slightly beats the record (below alert threshold) --
-        # ratchet quietly and confirm the baseline is still live.
-        state["records"][route_key] = {"price": price, "date": depart_date, "seen": today_str}
+    # Cheapest fare is above the record: the record price was not reconfirmed.
+    if failed:
+        # Some API calls failed, so the record fare may simply be in the part
+        # we couldn't see. Don't count this run as a miss.
+        return events
+
+    misses = record.get("misses", 0) + 1
+    cutoff = (today - timedelta(days=RECORD_TTL_DAYS)).isoformat()
+    stale = record.get("seen", "") < cutoff
+
+    if misses >= MAX_MISSES or stale:
+        # Record price is gone: adopt the current market silently.
+        state["records"][route_key] = new_record()
     else:
-        # Today's cheapest fare is worse than the record -- the record price
-        # wasn't reconfirmed this run. Leave "seen" untouched; if this keeps
-        # happening for RECORD_TTL_DAYS, the expiry branch above resets it.
-        pass
+        record["misses"] = misses  # keep the record, just count the miss
 
     return events
 
@@ -645,8 +673,8 @@ def main():
     else:
         print("\nNo alert-worthy changes since last run -- nothing sent.")
 
-    # Baselines can move every run (new records seeded, timestamps refreshed),
-    # so state is always persisted, not just on an alert.
+    # Baselines can move every run (new records seeded, timestamps refreshed,
+    # miss counters bumped), so state is always persisted, not just on an alert.
     if not args.dry_run:
         save_state(state)
     else:
