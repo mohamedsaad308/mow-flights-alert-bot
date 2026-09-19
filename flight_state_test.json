@@ -1,0 +1,92 @@
+{
+  "empty_since": {},
+  "records": {
+    "CAI|MOW": {
+      "date": "2026-09-30",
+      "price": 261,
+      "seen": "2026-09-19"
+    },
+    "HRG|LED": {
+      "date": "2026-09-20",
+      "price": 100,
+      "seen": "2026-09-17"
+    },
+    "HRG|MOW": {
+      "date": "2026-09-22",
+      "price": 56,
+      "seen": "2026-09-18"
+    },
+    "HRG|MSQ": {
+      "date": "2026-09-22",
+      "price": 50,
+      "seen": "2026-09-18"
+    },
+    "LED|HRG": {
+      "date": "2026-09-20",
+      "price": 203,
+      "seen": "2026-09-18"
+    },
+    "LED|SSH": {
+      "date": "2026-09-19",
+      "price": 80,
+      "seen": "2026-09-18"
+    },
+    "MOW|CAI": {
+      "date": "2026-10-08",
+      "price": 266,
+      "seen": "2026-09-18"
+    },
+    "MOW|HRG": {
+      "date": "2026-09-21",
+      "price": 222,
+      "seen": "2026-09-18"
+    },
+    "MOW|SSH": {
+      "date": "2026-09-18",
+      "price": 56,
+      "seen": "2026-09-17"
+    },
+    "MSQ|HRG": {
+      "date": "2026-10-15",
+      "price": 886,
+      "seen": "2026-09-17"
+    },
+    "MSQ|SSH": {
+      "date": "2026-09-26",
+      "price": 818,
+      "seen": "2026-09-18"
+    },
+    "SSH|LED": {
+      "date": "2026-09-20",
+      "price": 56,
+      "seen": "2026-09-18"
+    },
+    "SSH|MOW": {
+      "date": "2026-09-18",
+      "price": 56,
+      "seen": "2026-09-17"
+    },
+    "SSH|MSQ": {
+      "date": "2026-10-07",
+      "price": 798,
+      "seen": "2026-09-18"
+    }
+  },
+  "routes_with_fares": [
+    "MOW|HRG",
+    "MOW|SSH",
+    "MOW|CAI",
+    "LED|HRG",
+    "LED|SSH",
+    "MSQ|HRG",
+    "MSQ|SSH",
+    "HRG|MOW",
+    "SSH|MOW",
+    "CAI|MOW",
+    "HRG|LED",
+    "SSH|LED",
+    "HRG|MSQ",
+    "SSH|MSQ"
+  ],
+  "version": 3
+}
