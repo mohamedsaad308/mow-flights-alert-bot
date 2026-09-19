@@ -51,7 +51,7 @@
     },
     "MOW|SSH": {
       "date": "2026-09-19",
-      "misses": 0,
+      "misses": 1,
       "price": 129,
       "seen": "2026-09-19"
     },
@@ -81,8 +81,8 @@
     },
     "SSH|MSQ": {
       "date": "2026-10-07",
-      "misses": 2,
-      "price": 50,
+      "misses": 0,
+      "price": 800,
       "seen": "2026-09-19"
     }
   },
