@@ -21,8 +21,8 @@
     },
     "HRG|MSQ": {
       "date": "2026-09-22",
-      "misses": 2,
-      "price": 50,
+      "misses": 0,
+      "price": 225,
       "seen": "2026-09-19"
     },
     "LED|HRG": {
