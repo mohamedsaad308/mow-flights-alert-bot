@@ -2,9 +2,9 @@
   "empty_since": {},
   "records": {
     "CAI|MOW": {
-      "date": "2026-09-21",
+      "date": "2026-09-24",
       "misses": 0,
-      "price": 262,
+      "price": 261,
       "seen": "2026-09-19"
     },
     "HRG|LED": {
@@ -33,7 +33,7 @@
     },
     "LED|SSH": {
       "date": "2026-09-30",
-      "misses": 0,
+      "misses": 1,
       "price": 297,
       "seen": "2026-09-19"
     },
@@ -69,7 +69,7 @@
     },
     "SSH|LED": {
       "date": "2026-09-20",
-      "misses": 1,
+      "misses": 0,
       "price": 232,
       "seen": "2026-09-19"
     },
