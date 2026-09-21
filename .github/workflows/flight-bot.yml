@@ -2,6 +2,9 @@ name: Flight Price Watcher
 
 on:
   workflow_dispatch: {}
+  push:
+    branches:
+      - dev
 
 jobs:
   check-flights:
