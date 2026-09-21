@@ -7,16 +7,17 @@ on:
       - dev
 
 jobs:
-  check-flights:
+  run-bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    environment: test # <--- IMPORTANT: This grants access to the "test" environment secrets
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          cache: pip
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -24,8 +25,9 @@ jobs:
 
       - name: Run flight bot
         env:
-          TP_TOKEN: ${{ secrets.TP_TOKEN }}
-          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          TP_TOKEN: ${{ secrets.TP_TOKEN }}
         run: python flight_bot.py
