@@ -2,25 +2,11 @@ name: Flight Price Watcher
 
 on:
   workflow_dispatch: {}
-  push:
-    branches: [master, dev]          # CHANGED: dev also runs on push
-
-permissions:
-  contents: write
-
-concurrency:
-  group: flight-watcher-${{ github.ref_name }}   # CHANGED: dev and master no longer block each other
-  cancel-in-progress: false
 
 jobs:
   check-flights:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    # CHANGED: picks the environment (and so the secrets) by branch
-    environment: ${{ github.ref_name == 'master' && 'production' || 'test' }}
-    env:
-      # CHANGED: separate state file per branch
-      STATE_FILE: ${{ github.ref_name == 'master' && 'flight_state.json' || 'flight_state_test.json' }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -30,39 +16,13 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
 
       - name: Run flight bot
         env:
           TP_TOKEN: ${{ secrets.TP_TOKEN }}
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
-          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python flight_bot.py
-
-      - name: Commit updated state file
-        if: always()
-        run: |
-          set -euo pipefail
-          if [ ! -f "$STATE_FILE" ]; then
-            echo "No state file produced -- nothing to commit."
-            exit 0
-          fi
-          git config user.name "flight-bot"
-          git config user.email "flight-bot@users.noreply.github.com"
-          git add -- "$STATE_FILE"
-          if git diff --quiet --cached; then
-            echo "State unchanged -- nothing to commit."
-            exit 0
-          fi
-          git commit -m "Update flight price state [skip ci]"
-          for attempt in 1 2 3; do
-            if git push; then
-              echo "Pushed on attempt $attempt."
-              exit 0
-            fi
-            echo "Push rejected, rebasing and retrying ($attempt/3)..."
-            git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
-            sleep 5
-          done
-          echo "Could not push state after 3 attempts." >&2
-          exit 1
