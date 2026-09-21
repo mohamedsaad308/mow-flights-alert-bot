@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """
-Direct-flight price watcher (Database-backed multi-user version).
-
-Reads active subscriptions from Supabase, deduplicates routes, checks Travelpayouts,
-updates route baselines in PostgreSQL, and dispatches price alerts directly to
-each subscriber's Telegram chat.
+Direct-flight price watcher.
+Dynamically tracks routes requested by users in the Telegram bot (via Supabase).
+Fallback routes: MOW / LED / MSQ <-> HRG / CAI / SSH.
 """
 
 import argparse
@@ -15,21 +13,36 @@ from datetime import date, datetime, timedelta
 
 import requests
 from requests.adapters import HTTPAdapter
-from supabase import Client, create_client
 
 try:
     from urllib3.util.retry import Retry
 except ImportError:
     from requests.packages.urllib3.util.retry import Retry
 
+from db_state import (
+    load_state,
+    save_state,
+    get_active_routes_from_subscribers,
+    get_subscribers_for_route,
+)
+
 # ---------------------------------------------------------------------------
-# Configuration & Environment Variables
+# Config
 # ---------------------------------------------------------------------------
 
 TP_TOKEN = os.environ.get("TP_TOKEN", "")
 TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "")
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
+TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")
+
+# Default fallback routes if no users have subscribed yet
+DEFAULT_ROUTES = [
+    ("MOW", "HRG"), ("MOW", "SSH"), ("MOW", "CAI"),
+    ("LED", "HRG"), ("LED", "SSH"),
+    ("MSQ", "HRG"), ("MSQ", "SSH"),
+    ("HRG", "MOW"), ("SSH", "MOW"), ("CAI", "MOW"),
+    ("HRG", "LED"), ("SSH", "LED"),
+    ("HRG", "MSQ"), ("SSH", "MSQ"),
+]
 
 CURRENCY = "usd"
 DATE_RANGE_DAYS = 30
@@ -41,17 +54,12 @@ REQUEST_PAUSE_SECONDS = 0.15
 REQUEST_TIMEOUT = 20
 
 AFFILIATE_MARKER = "776670"
+
 TP_PRICES_FOR_DATES_URL = "https://api.travelpayouts.com/aviasales/v3/prices_for_dates"
 TG_SEND_URL_TMPL = "https://api.telegram.org/bot{token}/sendMessage"
 
 BIG_WARNING = "⚠️ <i>Cached data, not live — verify on Aviasales before booking.</i>"
 
-IGNORED_FLIGHTS = set()
-
-
-# ---------------------------------------------------------------------------
-# HTTP Session with Retries
-# ---------------------------------------------------------------------------
 
 def build_session():
     session = requests.Session()
@@ -62,96 +70,14 @@ def build_session():
         status=4,
         backoff_factor=1.5,
         status_forcelist=(429, 500, 502, 503, 504),
-        allowed_methods=frozenset(["GET", "POST"]),
+        allowed_methods=frozenset(["GET"]),
         raise_on_status=False,
         respect_retry_after_header=True,
     )
     session.mount("https://", HTTPAdapter(max_retries=retry))
-    session.headers.update({"User-Agent": "flight-price-watcher/4.0"})
+    session.headers.update({"User-Agent": "flight-price-watcher/3.0"})
     return session
 
-
-# ---------------------------------------------------------------------------
-# Supabase Database Operations
-# ---------------------------------------------------------------------------
-
-def get_supabase_client() -> Client:
-    if not SUPABASE_URL or not SUPABASE_KEY:
-        print("ERROR: SUPABASE_URL and SUPABASE_KEY must be set.", file=sys.stderr)
-        sys.exit(1)
-    return create_client(SUPABASE_URL, SUPABASE_KEY)
-
-
-def fetch_active_subscriptions(client: Client):
-    """
-    Returns:
-      routes: list of unique (origin, destination) tuples
-      route_subscribers: dict mapping (origin, destination) -> list of chat_ids
-    """
-    res = client.table("subscriptions").select("chat_id, origin, destination").execute()
-    data = res.data or []
-
-    route_subscribers = {}
-    for row in data:
-        pair = (row["origin"].upper(), row["destination"].upper())
-        route_subscribers.setdefault(pair, []).append(row["chat_id"])
-
-    routes = sorted(list(route_subscribers.keys()))
-    return routes, route_subscribers
-
-
-def load_state_from_db(client: Client):
-    """Reconstructs the state dict from PostgreSQL."""
-    rec_res = client.table("route_baselines").select("*").execute()
-    known_res = client.table("known_routes").select("*").execute()
-
-    records = {}
-    for r in (rec_res.data or []):
-        records[r["route_key"]] = {
-            "price": float(r["lowest_price"]),
-            "date": r["flight_date"],
-            "seen": r["last_seen"],
-            "misses": r.get("misses", 0),
-        }
-
-    routes_with_fares = []
-    empty_since = {}
-    for kr in (known_res.data or []):
-        routes_with_fares.append(kr["route_key"])
-        if kr.get("empty_since"):
-            empty_since[kr["route_key"]] = kr["empty_since"]
-
-    return {
-        "records": records,
-        "routes_with_fares": routes_with_fares,
-        "empty_since": empty_since,
-    }
-
-
-def save_state_to_db(client: Client, state: dict):
-    """Persists records and route presence back to PostgreSQL."""
-    # 1. Save or update route baselines
-    for key, val in state["records"].items():
-        client.table("route_baselines").upsert({
-            "route_key": key,
-            "lowest_price": val["price"],
-            "flight_date": val["date"],
-            "last_seen": val["seen"],
-            "misses": val.get("misses", 0),
-            "updated_at": datetime.utcnow().isoformat(),
-        }).execute()
-
-    # 2. Synchronize known routes state
-    for key in state["routes_with_fares"]:
-        client.table("known_routes").upsert({
-            "route_key": key,
-            "empty_since": state["empty_since"].get(key),
-        }).execute()
-
-
-# ---------------------------------------------------------------------------
-# Travelpayouts API
-# ---------------------------------------------------------------------------
 
 def window_dates(today, days_ahead):
     return [today + timedelta(days=i) for i in range(days_ahead)]
@@ -187,7 +113,6 @@ def _request_fares(session, origin, destination, departure_at, limit):
         return [], False
 
     if not payload.get("success", True):
-        print(f"[{origin}->{destination} {departure_at}] API failure: {payload.get('error')}", file=sys.stderr)
         return [], False
 
     return payload.get("data", []) or [], True
@@ -210,12 +135,7 @@ def fetch_direct_fares(session, origin, destination, dates, daily=False):
             if item.get("transfers", 0) != 0:
                 continue
             depart_date = (item.get("departure_at") or "")[:10]
-            if depart_date not in window:
-                continue
-            flight_number = f"{item.get('airline', '')}{item.get('flight_number', '')}"
-            if (origin, destination, flight_number) in IGNORED_FLIGHTS:
-                continue
-            if item.get("price") is None:
+            if depart_date not in window or item.get("price") is None:
                 continue
             results.append(item)
 
@@ -223,10 +143,6 @@ def fetch_direct_fares(session, origin, destination, dates, daily=False):
 
     return results, failed
 
-
-# ---------------------------------------------------------------------------
-# Formatting & Telegram
-# ---------------------------------------------------------------------------
 
 def aviasales_link(origin, destination, depart_date_str):
     d = datetime.strptime(depart_date_str, "%Y-%m-%d")
@@ -270,18 +186,17 @@ def make_event(kind, origin, destination, fare, old_price=None):
     }
 
 
-def send_telegram_message(session, text, chat_id, dry_run=False):
+def send_telegram(session, chat_id, text, dry_run=False):
     if dry_run:
-        print(f"--- [Dry Run] Telegram -> Chat ID: {chat_id} ---")
+        print(f"--- Would send to Chat ID {chat_id} ---")
         print(text)
-        print("-----------------------------------------------")
+        print("---------------------------------------")
         return
     if not TG_BOT_TOKEN or not chat_id:
         return
-
     url = TG_SEND_URL_TMPL.format(token=TG_BOT_TOKEN)
     try:
-        resp = session.post(
+        session.post(
             url,
             data={
                 "chat_id": chat_id,
@@ -291,15 +206,9 @@ def send_telegram_message(session, text, chat_id, dry_run=False):
             },
             timeout=REQUEST_TIMEOUT,
         )
-        if not resp.ok:
-            print(f"Failed sending to {chat_id}: {resp.status_code} {resp.text}", file=sys.stderr)
     except requests.RequestException as e:
-        print(f"Telegram network error ({chat_id}): {e}", file=sys.stderr)
+        print(f"Telegram send to {chat_id} failed: {e}", file=sys.stderr)
 
-
-# ---------------------------------------------------------------------------
-# Baseline Evaluation
-# ---------------------------------------------------------------------------
 
 def check_route(origin, destination, fares, failed, state, today):
     route_key = f"{origin}|{destination}"
@@ -315,10 +224,11 @@ def check_route(origin, destination, fares, failed, state, today):
             elif (today - date.fromisoformat(first_empty)).days >= EMPTY_GRACE_DAYS:
                 state["routes_with_fares"].remove(route_key)
                 state["records"].pop(route_key, None)
-                state["empty_since"].pop(route_key, None)
+                del state["empty_since"][route_key]
         return events
 
     state["empty_since"].pop(route_key, None)
+
     best = cheapest_of(fares)
     price = best["price"]
     depart_date = (best.get("departure_at") or "")[:10]
@@ -360,90 +270,65 @@ def check_route(origin, destination, fares, failed, state, today):
     return events
 
 
-def build_alert_message(ev):
-    duration_str = f" · {format_duration(ev['duration'])}" if ev.get("duration") else ""
+def build_event_block(ev):
+    duration_note = f" · {format_duration(ev['duration'])}" if ev.get("duration") else ""
     if ev["kind"] == "wakeup":
-        headline = f"🆕 <b>{ev['origin']} → {ev['destination']}</b> — Direct flight detected!"
+        headline = f"🆕 <b>{ev['origin']} → {ev['destination']}</b> — direct flights detected!"
         price_line = f"💰 <b>${ev['price']}</b>"
     else:
-        headline = f"📉 <b>{ev['origin']} → {ev['destination']}</b> — Price drop!"
+        headline = f"📉 <b>{ev['origin']} → {ev['destination']}</b> — price drop detected!"
         price_line = f"💰 ${ev['old_price']} → <b>${ev['price']}</b>"
-
     return (
         f"{headline}\n\n"
-        f"{price_line}{duration_str}\n"
-        f"🛫 {format_departure(ev['departure_at'])}   ✈️ {ev['flight_number']}\n"
+        f"{price_line}{duration_note}\n"
+        f"🛫 {format_departure(ev['departure_at'])}    ✈️ {ev['flight_number']}\n"
         f"<a href=\"{ev['link']}\">Book / Check on Aviasales</a>\n\n"
         f"{BIG_WARNING}"
     )
 
 
-# ---------------------------------------------------------------------------
-# Main Execution
-# ---------------------------------------------------------------------------
-
 def main():
-    parser = argparse.ArgumentParser(description="Multi-user Direct Flight Price Watcher")
-    parser.add_argument("--dry-run", action="store_true", help="Print alerts without sending Telegram messages.")
-    parser.add_argument("--verbose", action="store_true", help="Print details of every direct fare found.")
-    parser.add_argument("--daily-queries", action="store_true", help="Query day-by-day instead of by month.")
-    parser.add_argument("--days", type=int, default=DATE_RANGE_DAYS, help="Window size in days.")
+    parser = argparse.ArgumentParser(description="Direct flight price watcher")
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--daily-queries", action="store_true")
+    parser.add_argument("--days", type=int, default=DATE_RANGE_DAYS)
     args = parser.parse_args()
 
     if not TP_TOKEN:
         print("ERROR: TP_TOKEN is not set.", file=sys.stderr)
         sys.exit(1)
 
-    supabase = get_supabase_client()
-    routes, route_subscribers = fetch_active_subscriptions(supabase)
-
-    if not routes:
-        print("No active subscriptions found in the database. Exiting.")
-        sys.exit(0)
-
-    print(f"Monitoring {len(routes)} unique route(s) across active subscribers:")
-    for orig, dest in routes:
-        sub_count = len(route_subscribers.get((orig, dest), []))
-        print(f"  • {orig} -> {dest} ({sub_count} subscriber{'s' if sub_count > 1 else ''})")
-
     session = build_session()
     today = date.today()
     dates = window_dates(today, args.days)
+    calls_per_route = len(dates) if args.daily_queries else len(months_in_window(dates))
 
-    state = load_state_from_db(supabase)
+    # Fetch routes actively subscribed to in the Telegram bot
+    user_routes = get_active_routes_from_subscribers()
+    routes_to_check = user_routes if user_routes else DEFAULT_ROUTES
+    print(f"Tracking {len(routes_to_check)} distinct route(s)...")
 
-    # 1. Fetch fares for each distinct route
-    route_data = {}
-    for origin, destination in routes:
+    state = load_state()
+
+    # Check fares and dispatch alerts
+    for origin, destination in routes_to_check:
         fares, failed = fetch_direct_fares(session, origin, destination, dates, daily=args.daily_queries)
-        route_data[(origin, destination)] = (fares, failed)
-
-        if args.verbose and fares:
-            print(f"\n--- {origin} -> {destination} ({len(fares)} fares) ---")
-            for f in sorted(fares, key=lambda x: x.get("departure_at") or ""):
-                print(f"  {format_departure(f.get('departure_at'))} | ${f.get('price')} | {f.get('airline')}{f.get('flight_number')}")
-
-    # 2. Check for alerts and notify matching subscribers
-    total_events = 0
-    for (origin, destination), (fares, failed) in route_data.items():
         events = check_route(origin, destination, fares, failed, state, today)
+
         for ev in events:
-            total_events += 1
-            alert_text = build_alert_message(ev)
-            target_chat_ids = route_subscribers.get((origin, destination), [])
+            message_text = build_event_block(ev)
+            # Find everyone tracking this specific route
+            subscribers = get_subscribers_for_route(origin, destination)
+            if subscribers:
+                for chat_id in subscribers:
+                    send_telegram(session, chat_id, message_text, dry_run=args.dry_run)
+            elif TG_CHAT_ID:
+                # If no individual user subscribers, broadcast to admin chat
+                send_telegram(session, TG_CHAT_ID, message_text, dry_run=args.dry_run)
 
-            print(f"Event: {ev['kind']} on {origin}->{destination}. Alerting {len(target_chat_ids)} user(s).")
-            for chat_id in target_chat_ids:
-                send_telegram_message(session, alert_text, chat_id=chat_id, dry_run=args.dry_run)
-
-    print(f"\nCompleted: {total_events} alert event(s) fired across all routes.")
-
-    # 3. Persist baselines to Supabase
     if not args.dry_run:
-        save_state_to_db(supabase, state)
-        print("Updated state persisted to Supabase.")
-    else:
-        print("(Dry run: DB write skipped.)")
+        save_state(state)
+        print("State successfully synced with Supabase.")
 
 
 if __name__ == "__main__":
