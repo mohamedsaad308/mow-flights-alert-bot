@@ -3,11 +3,16 @@
 Interactive Telegram Bot for Flight Price Alert Subscriptions.
 Provides inline keyboards for selecting countries, curated hubs,
 and managing active alerts in Supabase.
+
+Includes a lightweight background HTTP server to satisfy Web Service health checks.
 """
 
 import os
 import sys
 import logging
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
 from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -41,6 +46,30 @@ if not TG_BOT_TOKEN or not SUPABASE_URL or not SUPABASE_KEY:
 
 # Initialize Supabase
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+
+# ---------------------------------------------------------------------------
+# Background HTTP Server for Web Service Health Checks
+# ---------------------------------------------------------------------------
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"Flight Bot is running!")
+
+    def log_message(self, format, *args):
+        # Silence routine health check GET logs to keep terminal/output clean
+        pass
+
+
+def start_health_server():
+    port = int(os.environ.get("PORT", 8080))
+    server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
+    logger.info(f"Health check HTTP server started on port {port}")
+    server.serve_forever()
+
 
 # ---------------------------------------------------------------------------
 # Curated Hubs (Traffic-ordered international airports)
@@ -299,7 +328,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         orig_name = get_airport_name(origin_code)
         dest_name = get_airport_name(dest_code)
 
-        # Check for duplicate subscription first
         existing = (
             supabase.table("subscriptions")
             .select("id")
@@ -324,7 +352,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-        # Insert safely with on_conflict constraint target
         try:
             supabase.table("subscriptions").upsert({
                 "chat_id": chat_id,
@@ -406,7 +433,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def global_error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Log the error so the bot doesn't fail silently."""
     logger.error("Exception while handling an update:", exc_info=context.error)
 
 
@@ -415,6 +441,11 @@ async def global_error_handler(update: object, context: ContextTypes.DEFAULT_TYP
 # ---------------------------------------------------------------------------
 
 def main():
+    # 1. Start the HTTP health server on a background daemon thread
+    http_thread = threading.Thread(target=start_health_server, daemon=True)
+    http_thread.start()
+
+    # 2. Build and run the Telegram bot
     application = (
         Application.builder()
         .token(TG_BOT_TOKEN)
