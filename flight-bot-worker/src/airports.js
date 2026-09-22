@@ -4,11 +4,12 @@
 // Telegram language. Each country and airport carries an { en, ru } name.
 // ---------------------------------------------------------------------------
 
-export const COUNTRY_ORDER = ["egypt", "russia", "turkey", "uae", "saudi"];
+export const COUNTRY_ORDER = ["egypt", "russia", "belarus", "turkey", "uae", "saudi"];
 
 export const COUNTRY_NAMES = {
   egypt: { en: "🇪🇬 Egypt", ru: "🇪🇬 Египет" },
   russia: { en: "🇷🇺 Russia", ru: "🇷🇺 Россия" },
+  belarus: { en: "🇧🇾 Belarus", ru: "🇧🇾 Беларусь" },
   turkey: { en: "🇹🇷 Turkey", ru: "🇹🇷 Турция" },
   uae: { en: "🇦🇪 UAE", ru: "🇦🇪 ОАЭ" },
   saudi: { en: "🇸🇦 Saudi Arabia", ru: "🇸🇦 Саудовская Аравия" },
