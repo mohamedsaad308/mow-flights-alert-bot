@@ -1,34 +1,45 @@
 import { Bot, InlineKeyboard, webhookCallback } from "grammy";
 import { createClient } from "@supabase/supabase-js";
-import { AIRPORTS_BY_COUNTRY, getAirportName } from "./airports.js";
+import {
+  COUNTRY_ORDER,
+  AIRPORTS_BY_COUNTRY,
+  getCountryName,
+  getAirportName,
+} from "./airports.js";
+import { resolveLang, t } from "./i18n.js";
 
 // ---------------------------------------------------------------------------
-// NOTE on statelessness:
-// python-telegram-bot's context.user_data persists in memory between a
-// user's messages because polling runs one long-lived process. Cloudflare
-// Workers has no persistent memory between requests, so instead of storing
-// the selected origin airport in memory, we encode it directly into the
-// callback_data string for the next step (e.g. "arr_country:CAI:Turkey").
-// This needs no KV/session storage and matches how Workers is meant to run.
+// Language: Telegram sends the user's client language on every update as
+// ctx.from.language_code (e.g. "ru", "ru-RU", "en"). We resolve it once per
+// update and thread it through every reply — no user setting needed, no
+// storage required. Unsupported languages silently fall back to English.
+//
+// Statelessness note (unchanged from before): the selected origin airport
+// still travels inside callback_data between steps, since Workers has no
+// memory between requests. Country selection uses neutral ids (e.g.
+// "egypt") instead of display names now, so callback_data never contains
+// language-specific text.
 // ---------------------------------------------------------------------------
 
 function buildBot(env) {
   const bot = new Bot(env.TG_BOT_TOKEN);
   const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 
-  const mainMenuKeyboard = new InlineKeyboard()
-    .text("➕ Track New Route", "menu:add").row()
-    .text("📋 My Watchlist", "menu:list");
+  const mainMenuKeyboard = (lang) =>
+    new InlineKeyboard()
+      .text(t(lang, "btn_track_new"), "menu:add").row()
+      .text(t(lang, "btn_watchlist"), "menu:list");
 
-  const countryKeyboard = (prefix) => {
+  const countryKeyboard = (prefix, lang) => {
     const kb = new InlineKeyboard();
-    for (const country of Object.keys(AIRPORTS_BY_COUNTRY)) {
-      kb.text(country, `${prefix}${country}`).row();
+    for (const key of COUNTRY_ORDER) {
+      kb.text(getCountryName(key, lang), `${prefix}${key}`).row();
     }
     return kb;
   };
 
   async function showMainMenu(ctx) {
+    const lang = resolveLang(ctx.from?.language_code);
     const chatId = ctx.chat.id;
     const username = ctx.from.username || ctx.from.first_name;
 
@@ -40,20 +51,17 @@ function buildBot(env) {
       console.error("Error saving user:", e);
     }
 
-    const text =
-      `👋 Hello <b>${username}</b>!\n\n` +
-      `Welcome to the <b>Flight Price Watcher</b>.\n` +
-      `I track direct flight drops across top hubs in Egypt, Russia, Turkey, UAE, and Saudi Arabia.\n\n` +
-      `Choose an option below or use the menu commands:`;
-
+    const text = t(lang, "welcome", { username });
+    const opts = { reply_markup: mainMenuKeyboard(lang), parse_mode: "HTML" };
     if (ctx.callbackQuery) {
-      await ctx.editMessageText(text, { reply_markup: mainMenuKeyboard, parse_mode: "HTML" });
+      await ctx.editMessageText(text, opts);
     } else {
-      await ctx.reply(text, { reply_markup: mainMenuKeyboard, parse_mode: "HTML" });
+      await ctx.reply(text, opts);
     }
   }
 
   async function showWatchlist(ctx) {
+    const lang = resolveLang(ctx.from?.language_code);
     const chatId = ctx.chat.id;
     const { data: subs } = await supabase
       .from("subscriptions")
@@ -62,30 +70,27 @@ function buildBot(env) {
 
     if (!subs || subs.length === 0) {
       const kb = new InlineKeyboard()
-        .text("➕ Track a Route", "menu:add").row()
-        .text("« Main Menu", "menu:home");
-      const text = "📋 <b>Your Watchlist is empty.</b>\nYou are not tracking any routes yet.";
-      if (ctx.callbackQuery) {
-        await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
-      } else {
-        await ctx.reply(text, { reply_markup: kb, parse_mode: "HTML" });
-      }
+        .text(t(lang, "btn_add_route"), "menu:add").row()
+        .text(t(lang, "btn_main_menu"), "menu:home");
+      const opts = { reply_markup: kb, parse_mode: "HTML" };
+      if (ctx.callbackQuery) await ctx.editMessageText(t(lang, "watchlist_empty"), opts);
+      else await ctx.reply(t(lang, "watchlist_empty"), opts);
       return;
     }
 
     const kb = new InlineKeyboard();
     for (const s of subs) {
-      kb.text(`❌ Remove: ${s.origin} ➡️ ${s.destination}`, `delete_sub:${s.id}:${s.origin}:${s.destination}`).row();
+      kb.text(
+        t(lang, "remove_label", { origin: s.origin, destination: s.destination }),
+        `delete_sub:${s.id}:${s.origin}:${s.destination}`
+      ).row();
     }
-    kb.text("➕ Add Another", "menu:add").row();
-    kb.text("« Main Menu", "menu:home");
+    kb.text(t(lang, "btn_add_another"), "menu:add").row();
+    kb.text(t(lang, "btn_main_menu"), "menu:home");
 
-    const text = "📋 <b>Your Active Watchlist:</b>\nTap any route below to stop tracking it:";
-    if (ctx.callbackQuery) {
-      await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
-    } else {
-      await ctx.reply(text, { reply_markup: kb, parse_mode: "HTML" });
-    }
+    const opts = { reply_markup: kb, parse_mode: "HTML" };
+    if (ctx.callbackQuery) await ctx.editMessageText(t(lang, "watchlist_active"), opts);
+    else await ctx.reply(t(lang, "watchlist_active"), opts);
   }
 
   // -------------------------------------------------------------------------
@@ -95,22 +100,15 @@ function buildBot(env) {
   bot.command(["start", "menu"], showMainMenu);
 
   bot.command("help", async (ctx) => {
-    const text =
-      "💡 <b>How it works:</b>\n\n" +
-      "1. Tap <b>Track New Route</b> and select your origin and destination hubs.\n" +
-      "2. The system checks prices regularly via Aviasales/Travelpayouts.\n" +
-      "3. You will receive an instant Telegram alert whenever a cheaper direct fare appears!\n\n" +
-      "Commands:\n/start - Main menu\n/add - Add a route\n/watchlist - View & delete routes";
-    await ctx.reply(text, { parse_mode: "HTML" });
+    const lang = resolveLang(ctx.from?.language_code);
+    await ctx.reply(t(lang, "help_text"), { parse_mode: "HTML" });
   });
 
   bot.command("add", async (ctx) => {
-    const kb = countryKeyboard("dep_country:");
-    kb.text("« Back", "menu:home");
-    await ctx.reply("🛫 <b>Step 1/4:</b> Select <b>Departure Country</b>:", {
-      reply_markup: kb,
-      parse_mode: "HTML",
-    });
+    const lang = resolveLang(ctx.from?.language_code);
+    const kb = countryKeyboard("dep_country:", lang);
+    kb.text(t(lang, "btn_back"), "menu:home");
+    await ctx.reply(t(lang, "step1"), { reply_markup: kb, parse_mode: "HTML" });
   });
 
   bot.command("watchlist", showWatchlist);
@@ -120,6 +118,7 @@ function buildBot(env) {
   // -------------------------------------------------------------------------
 
   bot.on("callback_query:data", async (ctx) => {
+    const lang = resolveLang(ctx.from?.language_code);
     const data = ctx.callbackQuery.data;
     const chatId = ctx.chat.id;
     await ctx.answerCallbackQuery();
@@ -131,63 +130,63 @@ function buildBot(env) {
 
     // 2. Step 1: Select Departure Country
     if (data === "menu:add") {
-      const kb = countryKeyboard("dep_country:");
-      kb.text("« Back", "menu:home");
-      return ctx.editMessageText("🛫 <b>Step 1/4:</b> Select <b>Departure Country</b>:", {
-        reply_markup: kb,
-        parse_mode: "HTML",
-      });
+      const kb = countryKeyboard("dep_country:", lang);
+      kb.text(t(lang, "btn_back"), "menu:home");
+      return ctx.editMessageText(t(lang, "step1"), { reply_markup: kb, parse_mode: "HTML" });
     }
 
     // 3. Step 2: Select Departure Hub
     if (data.startsWith("dep_country:")) {
-      const country = data.split(":").slice(1).join(":");
-      const airports = AIRPORTS_BY_COUNTRY[country] || [];
+      const countryKey = data.split(":")[1];
+      const airports = AIRPORTS_BY_COUNTRY[countryKey] || [];
       const kb = new InlineKeyboard();
-      for (const [name, code] of airports) kb.text(name, `set_origin:${code}`).row();
-      kb.text("« Back", "menu:add");
-      return ctx.editMessageText(`🛫 <b>Step 2/4:</b> Select <b>Departure Hub</b> in ${country}:`, {
-        reply_markup: kb,
-        parse_mode: "HTML",
-      });
+      for (const [code, names] of airports) {
+        kb.text(names[lang] || names.en, `set_origin:${code}`).row();
+      }
+      kb.text(t(lang, "btn_back"), "menu:add");
+      return ctx.editMessageText(
+        t(lang, "step2", { country: getCountryName(countryKey, lang) }),
+        { reply_markup: kb, parse_mode: "HTML" }
+      );
     }
 
     // 4. Step 3: Select Arrival Country (origin carried in callback_data)
     if (data.startsWith("set_origin:")) {
       const originCode = data.split(":")[1];
-      const originName = getAirportName(originCode);
+      const originName = getAirportName(originCode, lang);
       const kb = new InlineKeyboard();
-      for (const country of Object.keys(AIRPORTS_BY_COUNTRY)) {
-        kb.text(country, `arr_country:${originCode}:${country}`).row();
+      for (const key of COUNTRY_ORDER) {
+        kb.text(getCountryName(key, lang), `arr_country:${originCode}:${key}`).row();
       }
-      kb.text("« Back", "menu:add");
-      return ctx.editMessageText(
-        `Selected Departure: <b>${originName}</b>\n\n🛬 <b>Step 3/4:</b> Select <b>Arrival Country</b>:`,
-        { reply_markup: kb, parse_mode: "HTML" }
-      );
-    }
-
-    // 5. Step 4: Select Arrival Hub
-    if (data.startsWith("arr_country:")) {
-      const [, originCode, ...rest] = data.split(":");
-      const country = rest.join(":");
-      const airports = AIRPORTS_BY_COUNTRY[country] || [];
-      const kb = new InlineKeyboard();
-      for (const [name, code] of airports) {
-        if (code !== originCode) kb.text(name, `confirm_sub:${originCode}:${code}`).row();
-      }
-      kb.text("« Back", "menu:add");
-      return ctx.editMessageText(`🛬 <b>Step 4/4:</b> Select <b>Arrival Hub</b> in ${country}:`, {
+      kb.text(t(lang, "btn_back"), "menu:add");
+      return ctx.editMessageText(t(lang, "step3", { origin: originName }), {
         reply_markup: kb,
         parse_mode: "HTML",
       });
     }
 
+    // 5. Step 4: Select Arrival Hub
+    if (data.startsWith("arr_country:")) {
+      const [, originCode, countryKey] = data.split(":");
+      const airports = AIRPORTS_BY_COUNTRY[countryKey] || [];
+      const kb = new InlineKeyboard();
+      for (const [code, names] of airports) {
+        if (code !== originCode) {
+          kb.text(names[lang] || names.en, `confirm_sub:${originCode}:${code}`).row();
+        }
+      }
+      kb.text(t(lang, "btn_back"), "menu:add");
+      return ctx.editMessageText(
+        t(lang, "step4", { country: getCountryName(countryKey, lang) }),
+        { reply_markup: kb, parse_mode: "HTML" }
+      );
+    }
+
     // 6. Save Subscription (with duplicate handling)
     if (data.startsWith("confirm_sub:")) {
       const [, originCode, destCode] = data.split(":");
-      const origName = getAirportName(originCode);
-      const destName = getAirportName(destCode);
+      const origName = getAirportName(originCode, lang);
+      const destName = getAirportName(destCode, lang);
 
       const { data: existing } = await supabase
         .from("subscriptions")
@@ -197,12 +196,12 @@ function buildBot(env) {
         .eq("destination", destCode);
 
       const kb = new InlineKeyboard()
-        .text("➕ Add Another Route", "menu:add").row()
-        .text("📋 View Watchlist", "menu:list");
+        .text(t(lang, "btn_add_another"), "menu:add").row()
+        .text(t(lang, "btn_view_watchlist"), "menu:list");
 
       if (existing && existing.length > 0) {
         return ctx.editMessageText(
-          `ℹ️ <b>Already Tracking!</b>\n\nYou are already receiving alerts for:\n<b>${origName}</b> ➡️ <b>${destName}</b>`,
+          t(lang, "already_tracking", { origin: origName, destination: destName }),
           { reply_markup: kb, parse_mode: "HTML" }
         );
       }
@@ -217,14 +216,13 @@ function buildBot(env) {
       if (error) {
         console.warn("Database duplicate caught:", error);
         return ctx.editMessageText(
-          `ℹ️ <b>Already in Watchlist:</b>\n<b>${origName}</b> ➡️ <b>${destName}</b>`,
+          t(lang, "already_in_watchlist", { origin: origName, destination: destName }),
           { reply_markup: kb, parse_mode: "HTML" }
         );
       }
 
       return ctx.editMessageText(
-        `✅ <b>Alert Active!</b>\n\nRoute: <b>${origName}</b> ➡️ <b>${destName}</b>\n\n` +
-          `You will get a direct notification whenever a direct flight price drops!`,
+        t(lang, "alert_active", { origin: origName, destination: destName }),
         { reply_markup: kb, parse_mode: "HTML" }
       );
     }
@@ -240,9 +238,9 @@ function buildBot(env) {
       await supabase.from("subscriptions").delete().eq("id", Number(subId));
 
       const kb = new InlineKeyboard()
-        .text("📋 Back to Watchlist", "menu:list").row()
-        .text("« Main Menu", "menu:home");
-      return ctx.editMessageText(`🗑 Removed <b>${orig} ➡️ ${dest}</b> from your watchlist.`, {
+        .text(t(lang, "btn_back_to_watchlist"), "menu:list").row()
+        .text(t(lang, "btn_main_menu"), "menu:home");
+      return ctx.editMessageText(t(lang, "removed", { origin: orig, destination: dest }), {
         reply_markup: kb,
         parse_mode: "HTML",
       });
