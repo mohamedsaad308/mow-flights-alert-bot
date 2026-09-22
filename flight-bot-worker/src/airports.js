@@ -7,13 +7,16 @@ export const AIRPORTS_BY_COUNTRY = {
     ["Sharm El Sheikh (SSH)", "SSH"],
     ["Alexandria Borg El Arab (HBE)", "HBE"],
   ],
-  "🇷🇺 Russia": [
-    ["✈️ All Moscow (MOW)", "MOW"],
-    ["St. Petersburg (LED)", "LED"],
-    ["Sochi (AER)", "AER"],
-    ["Kazan (KZN)", "KZN"],
-    ["Yekaterinburg (SVX)", "SVX"],
-  ],
+"🇷🇺 Russia": [
+  ["✈️ All Moscow (MOW)", "MOW"],
+  ["Sheremetyevo (SVO)", "SVO"],
+  ["Domodedovo (DME)", "DME"],
+  ["Vnukovo (VKO)", "VKO"],
+  ["St. Petersburg (LED)", "LED"],
+  ["Sochi (AER)", "AER"],
+  ["Kazan (KZN)", "KZN"],
+  ["Yekaterinburg (SVX)", "SVX"],
+],
   "🇹🇷 Turkey": [
     ["Istanbul (IST)", "IST"],
     ["Istanbul Sabiha (SAW)", "SAW"],
