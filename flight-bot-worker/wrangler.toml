@@ -1,0 +1,7 @@
+name = "flight-bot-worker"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+# Secrets (TG_BOT_TOKEN, SUPABASE_URL, SUPABASE_KEY) are NOT set here.
+# They're added via `wrangler secret put <NAME>` so they never sit in
+# plaintext in this file or get committed to git. See README.md.
