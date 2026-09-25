@@ -5,85 +5,85 @@
       "date": "2026-09-29",
       "misses": 0,
       "price": 258,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     },
     "HRG|LED": {
       "date": "2026-09-30",
-      "misses": 0,
+      "misses": 1,
       "price": 330,
       "seen": "2026-09-24"
     },
     "HRG|MOW": {
       "date": "2026-09-28",
-      "misses": 1,
+      "misses": 0,
       "price": 112,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     },
     "HRG|MSQ": {
       "date": "2026-09-29",
       "misses": 0,
       "price": 226,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     },
     "LED|HRG": {
       "date": "2026-09-29",
-      "misses": 2,
-      "price": 294,
-      "seen": "2026-09-24"
+      "misses": 0,
+      "price": 295,
+      "seen": "2026-09-25"
     },
     "LED|SSH": {
       "date": "2026-10-07",
       "misses": 0,
       "price": 361,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     },
     "MOW|CAI": {
       "date": "2026-10-18",
       "misses": 0,
       "price": 261,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     },
     "MOW|HRG": {
       "date": "2026-09-30",
       "misses": 0,
       "price": 277,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     },
     "MOW|SSH": {
       "date": "2026-09-30",
       "misses": 0,
       "price": 169,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     },
     "MSQ|HRG": {
       "date": "2026-09-26",
       "misses": 0,
       "price": 826,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     },
     "MSQ|SSH": {
       "date": "2026-09-27",
       "misses": 0,
       "price": 833,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     },
     "SSH|LED": {
       "date": "2026-09-28",
       "misses": 0,
       "price": 147,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     },
     "SSH|MOW": {
       "date": "2026-09-27",
       "misses": 0,
       "price": 68,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     },
     "SSH|MSQ": {
       "date": "2026-10-17",
       "misses": 0,
       "price": 511,
-      "seen": "2026-09-24"
+      "seen": "2026-09-25"
     }
   },
   "routes_with_fares": [
