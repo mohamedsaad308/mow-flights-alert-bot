@@ -2,7 +2,7 @@
   "empty_since": {},
   "records": {
     "CAI|MOW": {
-      "date": "2026-10-22",
+      "date": "2026-10-10",
       "misses": 0,
       "price": 257,
       "seen": "2026-09-28"
@@ -38,15 +38,15 @@
       "seen": "2026-09-28"
     },
     "MOW|CAI": {
-      "date": "2026-10-21",
+      "date": "2026-10-13",
       "misses": 0,
       "price": 260,
       "seen": "2026-09-28"
     },
     "MOW|HRG": {
-      "date": "2026-10-27",
+      "date": "2026-09-30",
       "misses": 0,
-      "price": 253,
+      "price": 221,
       "seen": "2026-09-28"
     },
     "MOW|SSH": {
