@@ -2,7 +2,7 @@
   "empty_since": {},
   "records": {
     "CAI|MOW": {
-      "date": "2026-10-03",
+      "date": "2026-10-20",
       "misses": 0,
       "price": 257,
       "seen": "2026-09-28"
@@ -16,7 +16,7 @@
     "HRG|MOW": {
       "date": "2026-10-01",
       "misses": 0,
-      "price": 168,
+      "price": 167,
       "seen": "2026-09-28"
     },
     "HRG|MSQ": {
