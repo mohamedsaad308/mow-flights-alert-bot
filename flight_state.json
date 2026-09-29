@@ -33,13 +33,13 @@
     },
     "LED|SSH": {
       "date": "2026-10-07",
-      "misses": 1,
+      "misses": 0,
       "price": 383,
       "seen": "2026-09-29"
     },
     "MOW|CAI": {
       "date": "2026-10-19",
-      "misses": 0,
+      "misses": 1,
       "price": 261,
       "seen": "2026-09-29"
     },
@@ -75,14 +75,14 @@
     },
     "SSH|MOW": {
       "date": "2026-09-30",
-      "misses": 0,
+      "misses": 1,
       "price": 85,
       "seen": "2026-09-29"
     },
     "SSH|MSQ": {
       "date": "2026-10-19",
       "misses": 0,
-      "price": 279,
+      "price": 274,
       "seen": "2026-09-29"
     }
   },
