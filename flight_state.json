@@ -38,20 +38,20 @@
       "seen": "2026-09-29"
     },
     "MOW|CAI": {
-      "date": "2026-10-19",
-      "misses": 2,
-      "price": 261,
+      "date": "2026-10-18",
+      "misses": 0,
+      "price": 262,
       "seen": "2026-09-29"
     },
     "MOW|HRG": {
       "date": "2026-10-28",
-      "misses": 1,
+      "misses": 2,
       "price": 214,
       "seen": "2026-09-29"
     },
     "MOW|SSH": {
       "date": "2026-10-01",
-      "misses": 0,
+      "misses": 1,
       "price": 206,
       "seen": "2026-09-29"
     },
