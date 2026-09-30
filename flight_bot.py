@@ -5,6 +5,13 @@ Dynamically tracks routes requested by users in the Telegram bot (via Supabase).
 Fallback routes: MOW / LED / MSQ <-> HRG / CAI / SSH.
 """
 
+# Load .env for local runs (no-op on GitHub Actions). Must come before db_state import.
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 import argparse
 import os
 import sys
@@ -25,6 +32,7 @@ from db_state import (
     get_active_routes_from_subscribers,
     get_route_subscribers,
     mark_welcomed,
+    disable_subscriptions,
 )
 
 # ---------------------------------------------------------------------------
@@ -94,6 +102,7 @@ def months_in_window(dates):
 
 
 def _request_fares(session, origin, destination, departure_at, limit):
+    """Returns (items, status) where status is "ok", "unsupported" (HTTP 400) or "error"."""
     params = {
         "origin": origin,
         "destination": destination,
@@ -107,28 +116,42 @@ def _request_fares(session, origin, destination, departure_at, limit):
     }
     try:
         resp = session.get(TP_PRICES_FOR_DATES_URL, params=params, timeout=REQUEST_TIMEOUT)
+        if resp.status_code == 400:
+            print(
+                f"[{origin}->{destination} {departure_at}] 400 Bad Request: {resp.text[:200]}",
+                file=sys.stderr,
+            )
+            return [], "unsupported"
         resp.raise_for_status()
         payload = resp.json()
     except (requests.RequestException, ValueError) as e:
         print(f"[{origin}->{destination} {departure_at}] API error: {e}", file=sys.stderr)
-        return [], False
+        return [], "error"
 
     if not payload.get("success", True):
-        return [], False
+        return [], "error"
 
-    return payload.get("data", []) or [], True
+    return payload.get("data", []) or [], "ok"
 
 
 def fetch_direct_fares(session, origin, destination, dates, daily=False):
+    """Returns (fares, failed, unsupported).
+
+    failed      = number of queries that did not succeed (errors + 400s)
+    unsupported = number of queries that got HTTP 400
+    """
     window = {d.isoformat() for d in dates}
     queries = [(d.isoformat(), 30) for d in dates] if daily else [(m, 1000) for m in months_in_window(dates)]
 
     results = []
     failed = 0
+    unsupported = 0
     for departure_at, limit in queries:
-        items, ok = _request_fares(session, origin, destination, departure_at, limit)
-        if not ok:
+        items, status = _request_fares(session, origin, destination, departure_at, limit)
+        if status != "ok":
             failed += 1
+            if status == "unsupported":
+                unsupported += 1
             time.sleep(REQUEST_PAUSE_SECONDS)
             continue
 
@@ -142,7 +165,7 @@ def fetch_direct_fares(session, origin, destination, dates, daily=False):
 
         time.sleep(REQUEST_PAUSE_SECONDS)
 
-    return results, failed
+    return results, failed, unsupported
 
 
 def aviasales_link(origin, destination, depart_date_str):
@@ -316,6 +339,15 @@ def build_snapshot_block(origin, destination, fare):
     )
 
 
+def build_unsupported_block(origin, destination):
+    return (
+        f"❌ <b>{origin} → {destination}</b> isn't supported by my price data source, "
+        f"so I can't track it and have stopped watching this route.\n\n"
+        f"Please double-check the airport codes (3-letter IATA), or try a nearby airport / "
+        f"a city code (e.g. MOW for Moscow)."
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(description="Direct flight price watcher")
     parser.add_argument("--dry-run", action="store_true")
@@ -330,17 +362,32 @@ def main():
     session = build_session()
     today = date.today()
     dates = window_dates(today, args.days)
+    queries_per_route = len(dates) if args.daily_queries else len(months_in_window(dates))
 
     # Fetch routes actively subscribed to in the Telegram bot
     user_routes = get_active_routes_from_subscribers()
     routes_to_check = user_routes if user_routes else DEFAULT_ROUTES
-    print(f"Tracking {len(routes_to_check)} distinct route(s)...")
+    print(f"Tracking {len(routes_to_check)} distinct route(s)...", flush=True)
 
     state = load_state()
 
+    unsupported_routes = []   # routes where every query returned HTTP 400
+    healthy_routes = 0        # routes where every query succeeded (sanity check)
+
     # Check fares and dispatch alerts
     for origin, destination in routes_to_check:
-        fares, failed = fetch_direct_fares(session, origin, destination, dates, daily=args.daily_queries)
+        fares, failed, unsupported = fetch_direct_fares(
+            session, origin, destination, dates, daily=args.daily_queries
+        )
+
+        # Every query rejected with 400 and nothing found -> route not supported by the API.
+        if not fares and unsupported == queries_per_route:
+            unsupported_routes.append((origin, destination))
+            continue
+
+        if failed == 0:
+            healthy_routes += 1
+
         events = check_route(origin, destination, fares, failed, state, today)
 
         subs = get_route_subscribers(origin, destination)
@@ -367,6 +414,25 @@ def main():
             elif not subs and TG_CHAT_ID:
                 # If no individual user subscribers, broadcast to admin chat
                 send_telegram(session, TG_CHAT_ID, message_text, dry_run=args.dry_run)
+
+    # Handle unsupported routes: tell subscribers once, then stop tracking.
+    # Only when at least one other route worked, so a bad TP_TOKEN (400 everywhere)
+    # can't disable everyone's subscriptions.
+    if unsupported_routes:
+        if healthy_routes > 0:
+            for origin, destination in unsupported_routes:
+                print(f"Route {origin}->{destination} is unsupported; disabling.", flush=True)
+                text = build_unsupported_block(origin, destination)
+                for s in get_route_subscribers(origin, destination):
+                    send_telegram(session, s["chat_id"], text, dry_run=args.dry_run)
+                if not args.dry_run:
+                    disable_subscriptions(origin, destination)
+        else:
+            print(
+                "WARNING: every checked route returned 400 - check TP_TOKEN. "
+                "Not disabling any subscriptions.",
+                file=sys.stderr,
+            )
 
     if not args.dry_run:
         save_state(state)

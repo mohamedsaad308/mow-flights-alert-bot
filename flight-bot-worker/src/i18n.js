@@ -50,7 +50,11 @@ const STRINGS = {
     already_in_watchlist: "ℹ️ <b>Already in Watchlist:</b>\n<b>{origin}</b> ➡️ <b>{destination}</b>",
     alert_active:
       "✅ <b>Alert Active!</b>\n\nRoute: <b>{origin}</b> ➡️ <b>{destination}</b>\n\n" +
-      "You will get a direct notification whenever a direct flight price drops!",
+      "You will get a direct notification whenever a direct flight price drops!\n\n" +
+      "⏱ Your first price update will arrive within about 30 minutes.",
+    route_unsupported:
+      "❌ <b>{origin} ➡️ {destination}</b> isn't supported by my price data source, so I can't track it.\n\n" +
+      "Please pick a different airport.",
     removed: "🗑 Removed <b>{origin} ➡️ {destination}</b> from your watchlist.",
   },
   ru: {
@@ -87,7 +91,11 @@ const STRINGS = {
     already_in_watchlist: "ℹ️ <b>Уже в списке:</b>\n<b>{origin}</b> ➡️ <b>{destination}</b>",
     alert_active:
       "✅ <b>Маршрут добавлен!</b>\n\nМаршрут: <b>{origin}</b> ➡️ <b>{destination}</b>\n\n" +
-      "Вы получите уведомление, как только цена на прямой рейс снизится!",
+      "Вы получите уведомление, как только цена на прямой рейс снизится!\n\n" +
+      "⏱ Первое сообщение с текущей ценой придёт примерно в течение 30 минут.",
+    route_unsupported:
+      "❌ Маршрут <b>{origin} ➡️ {destination}</b> не поддерживается источником цен, поэтому я не могу его отслеживать.\n\n" +
+      "Пожалуйста, выберите другой аэропорт.",
     removed: "🗑 Маршрут <b>{origin} ➡️ {destination}</b> удалён из списка.",
   },
 };

@@ -21,6 +21,25 @@ import { resolveLang, t } from "./i18n.js";
 // language-specific text.
 // ---------------------------------------------------------------------------
 
+const TP_PRICES_URL = "https://api.travelpayouts.com/aviasales/v3/prices_for_dates";
+
+// Only a 400 means "unsupported pair". Network errors / 5xx fail open,
+// so an API hiccup never blocks users from subscribing.
+async function isRouteSupported(origin, destination, env) {
+  const month = new Date().toISOString().slice(0, 7); // e.g. 2026-09
+  const url =
+    `${TP_PRICES_URL}?origin=${origin}&destination=${destination}` +
+    `&departure_at=${month}&one_way=true&direct=true&limit=1&currency=usd` +
+    `&token=${env.TP_TOKEN}`;
+  try {
+    const res = await fetch(url);
+    return res.status !== 400;
+  } catch (e) {
+    console.error("Route check failed, allowing subscription:", e);
+    return true;
+  }
+}
+
 function buildBot(env) {
   const bot = new Bot(env.TG_BOT_TOKEN);
   const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
@@ -66,7 +85,8 @@ function buildBot(env) {
     const { data: subs } = await supabase
       .from("subscriptions")
       .select("id, origin, destination")
-      .eq("chat_id", chatId);
+      .eq("chat_id", chatId)
+      .eq("disabled", false);
 
     if (!subs || subs.length === 0) {
       const kb = new InlineKeyboard()
@@ -182,15 +202,26 @@ function buildBot(env) {
       );
     }
 
-    // 6. Save Subscription (with duplicate handling)
+    // 6. Save Subscription (validate route, then handle duplicates)
     if (data.startsWith("confirm_sub:")) {
       const [, originCode, destCode] = data.split(":");
       const origName = getAirportName(originCode, lang);
       const destName = getAirportName(destCode, lang);
 
+      // Reject routes the price API doesn't support
+      if (!(await isRouteSupported(originCode, destCode, env))) {
+        const back = new InlineKeyboard()
+          .text(t(lang, "btn_add_another"), "menu:add").row()
+          .text(t(lang, "btn_main_menu"), "menu:home");
+        return ctx.editMessageText(
+          t(lang, "route_unsupported", { origin: origName, destination: destName }),
+          { reply_markup: back, parse_mode: "HTML" }
+        );
+      }
+
       const { data: existing } = await supabase
         .from("subscriptions")
-        .select("id")
+        .select("id, disabled")
         .eq("chat_id", chatId)
         .eq("origin", originCode)
         .eq("destination", destCode);
@@ -200,6 +231,17 @@ function buildBot(env) {
         .text(t(lang, "btn_view_watchlist"), "menu:list");
 
       if (existing && existing.length > 0) {
+        // Previously auto-disabled as unsupported, but supported now: re-enable
+        if (existing[0].disabled) {
+          await supabase
+            .from("subscriptions")
+            .update({ disabled: false, welcomed: false })
+            .eq("id", existing[0].id);
+          return ctx.editMessageText(
+            t(lang, "alert_active", { origin: origName, destination: destName }),
+            { reply_markup: kb, parse_mode: "HTML" }
+          );
+        }
         return ctx.editMessageText(
           t(lang, "already_tracking", { origin: origName, destination: destName }),
           { reply_markup: kb, parse_mode: "HTML" }
@@ -209,7 +251,13 @@ function buildBot(env) {
       const { error } = await supabase
         .from("subscriptions")
         .upsert(
-          { chat_id: chatId, origin: originCode, destination: destCode },
+          {
+            chat_id: chatId,
+            origin: originCode,
+            destination: destCode,
+            welcomed: false,
+            disabled: false,
+          },
           { onConflict: "chat_id,origin,destination" }
         );
 
