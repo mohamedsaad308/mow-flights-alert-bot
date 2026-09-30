@@ -42,6 +42,34 @@ def get_subscribers_for_route(origin: str, destination: str):
     return [row["chat_id"] for row in (res.data or [])]
 
 
+def get_route_subscribers(origin: str, destination: str):
+    """Return subscription rows (chat_id + welcomed flag) for a specific route."""
+    supabase = get_supabase()
+    res = (
+        supabase.table("subscriptions")
+        .select("chat_id, welcomed")
+        .eq("origin", origin)
+        .eq("destination", destination)
+        .execute()
+    )
+    return res.data or []
+
+
+def mark_welcomed(origin: str, destination: str, chat_ids: list):
+    """Mark these subscribers as having received their first price snapshot."""
+    if not chat_ids:
+        return
+    supabase = get_supabase()
+    (
+        supabase.table("subscriptions")
+        .update({"welcomed": True})
+        .eq("origin", origin)
+        .eq("destination", destination)
+        .in_("chat_id", chat_ids)
+        .execute()
+    )
+
+
 def load_state() -> dict:
     """Fetches route states from Supabase."""
     supabase = get_supabase()

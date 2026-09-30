@@ -23,7 +23,8 @@ from db_state import (
     load_state,
     save_state,
     get_active_routes_from_subscribers,
-    get_subscribers_for_route,
+    get_route_subscribers,
+    mark_welcomed,
 )
 
 # ---------------------------------------------------------------------------
@@ -187,16 +188,17 @@ def make_event(kind, origin, destination, fare, old_price=None):
 
 
 def send_telegram(session, chat_id, text, dry_run=False):
+    """Send a Telegram message. Returns True on success, False otherwise."""
     if dry_run:
         print(f"--- Would send to Chat ID {chat_id} ---")
         print(text)
         print("---------------------------------------")
-        return
+        return True
     if not TG_BOT_TOKEN or not chat_id:
-        return
+        return False
     url = TG_SEND_URL_TMPL.format(token=TG_BOT_TOKEN)
     try:
-        session.post(
+        resp = session.post(
             url,
             data={
                 "chat_id": chat_id,
@@ -206,8 +208,15 @@ def send_telegram(session, chat_id, text, dry_run=False):
             },
             timeout=REQUEST_TIMEOUT,
         )
+        if not resp.ok:
+            print(
+                f"Telegram send to {chat_id} returned {resp.status_code}: {resp.text[:200]}",
+                file=sys.stderr,
+            )
+        return resp.ok
     except requests.RequestException as e:
         print(f"Telegram send to {chat_id} failed: {e}", file=sys.stderr)
+        return False
 
 
 def check_route(origin, destination, fares, failed, state, today):
@@ -287,6 +296,26 @@ def build_event_block(ev):
     )
 
 
+def build_snapshot_block(origin, destination, fare):
+    """First message a new subscriber gets: the current cheapest fare (or 'no flights')."""
+    if fare is None:
+        return (
+            f"ℹ️ <b>{origin} → {destination}</b> — no direct flights found "
+            f"in the next {DATE_RANGE_DAYS} days right now.\n"
+            f"I'll alert you as soon as one appears.\n\n"
+            f"{BIG_WARNING}"
+        )
+    ev = make_event("snapshot", origin, destination, fare)
+    duration_note = f" · {format_duration(ev['duration'])}" if ev.get("duration") else ""
+    return (
+        f"📊 <b>{origin} → {destination}</b> — current cheapest direct flight\n\n"
+        f"💰 <b>${ev['price']}</b>{duration_note}\n"
+        f"🛫 {format_departure(ev['departure_at'])}    ✈️ {ev['flight_number']}\n"
+        f"<a href=\"{ev['link']}\">Book / Check on Aviasales</a>\n\n"
+        f"{BIG_WARNING}"
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(description="Direct flight price watcher")
     parser.add_argument("--dry-run", action="store_true")
@@ -301,7 +330,6 @@ def main():
     session = build_session()
     today = date.today()
     dates = window_dates(today, args.days)
-    calls_per_route = len(dates) if args.daily_queries else len(months_in_window(dates))
 
     # Fetch routes actively subscribed to in the Telegram bot
     user_routes = get_active_routes_from_subscribers()
@@ -315,14 +343,28 @@ def main():
         fares, failed = fetch_direct_fares(session, origin, destination, dates, daily=args.daily_queries)
         events = check_route(origin, destination, fares, failed, state, today)
 
+        subs = get_route_subscribers(origin, destination)
+        new_ids = [s["chat_id"] for s in subs if not s.get("welcomed")]
+        welcomed_ids = [s["chat_id"] for s in subs if s.get("welcomed")]
+
+        # 1) Welcome snapshot for brand-new subscribers of this route.
+        #    Skipped if the API failed and returned nothing, so it retries next run.
+        if new_ids and (fares or failed == 0):
+            snapshot_text = build_snapshot_block(origin, destination, cheapest_of(fares))
+            sent_ids = [
+                cid for cid in new_ids
+                if send_telegram(session, cid, snapshot_text, dry_run=args.dry_run)
+            ]
+            if not args.dry_run:
+                mark_welcomed(origin, destination, sent_ids)
+
+        # 2) Normal alerts (wakeup / drop) go to already-welcomed subscribers.
         for ev in events:
             message_text = build_event_block(ev)
-            # Find everyone tracking this specific route
-            subscribers = get_subscribers_for_route(origin, destination)
-            if subscribers:
-                for chat_id in subscribers:
+            if welcomed_ids:
+                for chat_id in welcomed_ids:
                     send_telegram(session, chat_id, message_text, dry_run=args.dry_run)
-            elif TG_CHAT_ID:
+            elif not subs and TG_CHAT_ID:
                 # If no individual user subscribers, broadcast to admin chat
                 send_telegram(session, TG_CHAT_ID, message_text, dry_run=args.dry_run)
 
