@@ -23,7 +23,7 @@ import { resolveLang, t } from "./i18n.js";
 
 const TP_PRICES_URL = "https://api.travelpayouts.com/aviasales/v3/prices_for_dates";
 const AFFILIATE_MARKER = "776670"; // keep in sync with flight_bot.py
-const DATE_RANGE_DAYS = 30;        // keep in sync with flight_bot.py
+const DATE_RANGE_DAYS = 10;        // keep in sync with flight_bot.py
 const FETCH_TIMEOUT_MS = 5000;
 
 // ---------------------------------------------------------------------------
@@ -60,9 +60,16 @@ async function fetchCheapestFare(origin, destination, env) {
       try {
         const res = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
         if (res.status === 400) return { kind: "unsupported" };
-        if (!res.ok) return { kind: "error" };
+        if (!res.ok) {
+          const body = (await res.text()).slice(0, 200);
+          console.error(`Travelpayouts ${origin}->${destination} ${month}: HTTP ${res.status} ${body}`);
+          return { kind: "error" };
+        }
         const payload = await res.json();
-        if (payload.success === false) return { kind: "error" };
+        if (payload.success === false) {
+          console.error(`Travelpayouts ${origin}->${destination} ${month}: success=false`, JSON.stringify(payload).slice(0, 200));
+          return { kind: "error" };
+        }
         return { kind: "ok", data: payload.data || [] };
       } catch (e) {
         console.error(`Fare fetch failed ${origin}->${destination} ${month}:`, e);
@@ -109,7 +116,11 @@ function formatDeparture(departureAt) {
 
 function snapshotText(lang, originCode, destCode, origName, destName, fare) {
   if (!fare) {
-    return t(lang, "snapshot_none", { origin: origName, destination: destName });
+    return t(lang, "snapshot_none", {
+      origin: origName,
+      destination: destName,
+      days: String(DATE_RANGE_DAYS),
+    });
   }
   return t(lang, "snapshot_found", {
     origin: origName,

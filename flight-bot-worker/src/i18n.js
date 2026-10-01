@@ -58,7 +58,7 @@ const STRINGS = {
       "<a href=\"{link}\">Book / Check on Aviasales</a>\n\n" +
       "⚠️ <i>Cached data, not live — verify on Aviasales before booking.</i>",
     snapshot_none:
-      "ℹ️ <b>{origin} ➡️ {destination}</b> — no direct flights found in the next 30 days right now.\n" +
+      "ℹ️ <b>{origin} ➡️ {destination}</b> — no direct flights found in the next {days} days right now.\n" +
       "I'll alert you as soon as one appears.\n\n" +
       "⚠️ <i>Cached data, not live — verify on Aviasales before booking.</i>",
     snapshot_delayed:
@@ -110,7 +110,7 @@ const STRINGS = {
       "<a href=\"{link}\">Купить / проверить на Aviasales</a>\n\n" +
       "⚠️ <i>Данные из кэша, а не в реальном времени — проверьте цену на Aviasales перед покупкой.</i>",
     snapshot_none:
-      "ℹ️ <b>{origin} ➡️ {destination}</b> — прямых рейсов в ближайшие 30 дней сейчас не найдено.\n" +
+      "ℹ️ <b>{origin} ➡️ {destination}</b> — прямых рейсов в ближайшие {days} дней сейчас не найдено.\n" +
       "Я сообщу, как только они появятся.\n\n" +
       "⚠️ <i>Данные из кэша, а не в реальном времени — проверьте цену на Aviasales перед покупкой.</i>",
     snapshot_delayed:
