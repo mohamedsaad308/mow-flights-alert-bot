@@ -45,13 +45,13 @@
     },
     "MOW|HRG": {
       "date": "2026-10-08",
-      "misses": 1,
+      "misses": 0,
       "price": 405,
       "seen": "2026-10-01"
     },
     "MOW|SSH": {
       "date": "2026-10-03",
-      "misses": 1,
+      "misses": 2,
       "price": 416,
       "seen": "2026-10-01"
     },
