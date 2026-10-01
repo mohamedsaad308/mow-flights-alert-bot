@@ -21,7 +21,7 @@ export const AIRPORTS_BY_COUNTRY = {
     ["CAI", { en: "Cairo (CAI)", ru: "Каир (CAI)" }],
     ["HRG", { en: "Hurghada (HRG)", ru: "Хургада (HRG)" }],
     ["SSH", { en: "Sharm El Sheikh (SSH)", ru: "Шарм-эль-Шейх (SSH)" }],
-    ["HBE", { en: "Alexandria Borg El Arab (HBE)", ru: "Александрия — Борг-эль-Араб (HBE)" }],
+    ["DBB", { en: "El Alamein (DBB)", ru: "Эль-Аламейн (DBB)" }],
   ],
   russia: [
     ["MOW", { en: "✈️ All Moscow (MOW)", ru: "✈️ Вся Москва (MOW)" }],
@@ -32,6 +32,9 @@ export const AIRPORTS_BY_COUNTRY = {
     ["AER", { en: "Sochi (AER)", ru: "Сочи (AER)" }],
     ["KZN", { en: "Kazan (KZN)", ru: "Казань (KZN)" }],
     ["SVX", { en: "Yekaterinburg (SVX)", ru: "Екатеринбург (SVX)" }],
+    ["OVB", { en: "Novosibirsk (OVB)", ru: "Новосибирск (OVB)" }],
+    ["RTW", { en: "Saratov (RTW)", ru: "Саратов (RTW)" }],
+    ["KUF", { en: "Samara (KUF)", ru: "Самара (KUF)" }],
   ],
   belarus: [
     ["MSQ", { en: "Minsk (MSQ)", ru: "Минск (MSQ)" }],

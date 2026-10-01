@@ -22,22 +22,104 @@ import { resolveLang, t } from "./i18n.js";
 // ---------------------------------------------------------------------------
 
 const TP_PRICES_URL = "https://api.travelpayouts.com/aviasales/v3/prices_for_dates";
+const AFFILIATE_MARKER = "776670"; // keep in sync with flight_bot.py
+const DATE_RANGE_DAYS = 30;        // keep in sync with flight_bot.py
+const FETCH_TIMEOUT_MS = 5000;
 
-// Only a 400 means "unsupported pair". Network errors / 5xx fail open,
-// so an API hiccup never blocks users from subscribing.
-async function isRouteSupported(origin, destination, env) {
-  const month = new Date().toISOString().slice(0, 7); // e.g. 2026-09
-  const url =
-    `${TP_PRICES_URL}?origin=${origin}&destination=${destination}` +
-    `&departure_at=${month}&one_way=true&direct=true&limit=1&currency=usd` +
-    `&token=${env.TP_TOKEN}`;
-  try {
-    const res = await fetch(url);
-    return res.status !== 400;
-  } catch (e) {
-    console.error("Route check failed, allowing subscription:", e);
-    return true;
+// ---------------------------------------------------------------------------
+// Travelpayouts helpers (mirror the logic in flight_bot.py)
+// ---------------------------------------------------------------------------
+
+function windowDates(days) {
+  const now = new Date();
+  const out = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + i)
+    );
+    out.push(d.toISOString().slice(0, 10));
   }
+  return out;
+}
+
+// Returns { status, fare }:
+//   "unsupported" -> every query got HTTP 400 and nothing was found
+//   "ok"          -> fare is the cheapest direct flight in the window, or null if none
+//   "error"       -> API failed and nothing was found (fail open: caller still subscribes)
+async function fetchCheapestFare(origin, destination, env) {
+  const dates = windowDates(DATE_RANGE_DAYS);
+  const inWindow = new Set(dates);
+  const months = [...new Set(dates.map((d) => d.slice(0, 7)))];
+
+  const results = await Promise.all(
+    months.map(async (month) => {
+      const url =
+        `${TP_PRICES_URL}?origin=${origin}&destination=${destination}` +
+        `&departure_at=${month}&one_way=true&direct=true&sorting=price` +
+        `&limit=1000&currency=usd&token=${env.TP_TOKEN}`;
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+        if (res.status === 400) return { kind: "unsupported" };
+        if (!res.ok) return { kind: "error" };
+        const payload = await res.json();
+        if (payload.success === false) return { kind: "error" };
+        return { kind: "ok", data: payload.data || [] };
+      } catch (e) {
+        console.error(`Fare fetch failed ${origin}->${destination} ${month}:`, e);
+        return { kind: "error" };
+      }
+    })
+  );
+
+  let best = null;
+  let unsupported = 0;
+  let failed = 0;
+  for (const r of results) {
+    if (r.kind === "unsupported") { unsupported++; failed++; continue; }
+    if (r.kind === "error") { failed++; continue; }
+    for (const f of r.data) {
+      if ((f.transfers ?? 0) !== 0 || f.price == null) continue;
+      if (!inWindow.has((f.departure_at || "").slice(0, 10))) continue;
+      if (!best || f.price < best.price) best = f;
+    }
+  }
+
+  if (best) return { status: "ok", fare: best };
+  if (unsupported === months.length) return { status: "unsupported", fare: null };
+  if (failed > 0) return { status: "error", fare: null };
+  return { status: "ok", fare: null };
+}
+
+function aviasalesLink(origin, destination, departDate) {
+  const [, month, day] = departDate.split("-");
+  return `https://www.aviasales.ru/search/${origin}${day}${month}${destination}1?marker=${AFFILIATE_MARKER}`;
+}
+
+function formatDuration(minutes) {
+  if (!minutes) return "";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return ` · ${h}h${m ? String(m).padStart(2, "0") + "m" : ""}`;
+}
+
+function formatDeparture(departureAt) {
+  if (!departureAt) return "unknown";
+  return departureAt.slice(0, 16).replace("T", " ");
+}
+
+function snapshotText(lang, originCode, destCode, origName, destName, fare) {
+  if (!fare) {
+    return t(lang, "snapshot_none", { origin: origName, destination: destName });
+  }
+  return t(lang, "snapshot_found", {
+    origin: origName,
+    destination: destName,
+    price: String(fare.price),
+    duration: formatDuration(fare.duration),
+    departure: formatDeparture(fare.departure_at),
+    flight: `${fare.airline || ""}${fare.flight_number || ""}`,
+    link: aviasalesLink(originCode, destCode, (fare.departure_at || "").slice(0, 10)),
+  });
 }
 
 function buildBot(env) {
@@ -56,6 +138,33 @@ function buildBot(env) {
     }
     return kb;
   };
+
+  // Sends the instant price message after a subscription is saved.
+  // The subscription row was already saved with welcomed = (status === "ok").
+  // If sending fails, welcomed goes back to false so the scheduled job
+  // sends the snapshot instead.
+  async function deliverSnapshot(ctx, lang, chatId, originCode, destCode, origName, destName, result) {
+    try {
+      if (result.status === "ok") {
+        await ctx.reply(
+          snapshotText(lang, originCode, destCode, origName, destName, result.fare),
+          { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
+        );
+      } else {
+        await ctx.reply(t(lang, "snapshot_delayed"), { parse_mode: "HTML" });
+      }
+    } catch (e) {
+      console.error("Snapshot send failed:", e);
+      if (result.status === "ok") {
+        await supabase
+          .from("subscriptions")
+          .update({ welcomed: false })
+          .eq("chat_id", chatId)
+          .eq("origin", originCode)
+          .eq("destination", destCode);
+      }
+    }
+  }
 
   async function showMainMenu(ctx) {
     const lang = resolveLang(ctx.from?.language_code);
@@ -202,14 +311,17 @@ function buildBot(env) {
       );
     }
 
-    // 6. Save Subscription (validate route, then handle duplicates)
+    // 6. Save Subscription: validate route + fetch current price in one go,
+    //    save, confirm, then send the instant price message.
     if (data.startsWith("confirm_sub:")) {
       const [, originCode, destCode] = data.split(":");
       const origName = getAirportName(originCode, lang);
       const destName = getAirportName(destCode, lang);
 
+      const result = await fetchCheapestFare(originCode, destCode, env);
+
       // Reject routes the price API doesn't support
-      if (!(await isRouteSupported(originCode, destCode, env))) {
+      if (result.status === "unsupported") {
         const back = new InlineKeyboard()
           .text(t(lang, "btn_add_another"), "menu:add").row()
           .text(t(lang, "btn_main_menu"), "menu:home");
@@ -218,6 +330,10 @@ function buildBot(env) {
           { reply_markup: back, parse_mode: "HTML" }
         );
       }
+
+      // welcomed = true only if we have a price result to send right now;
+      // otherwise the scheduled job sends the first snapshot.
+      const welcomedNow = result.status === "ok";
 
       const { data: existing } = await supabase
         .from("subscriptions")
@@ -235,12 +351,13 @@ function buildBot(env) {
         if (existing[0].disabled) {
           await supabase
             .from("subscriptions")
-            .update({ disabled: false, welcomed: false })
+            .update({ disabled: false, welcomed: welcomedNow })
             .eq("id", existing[0].id);
-          return ctx.editMessageText(
+          await ctx.editMessageText(
             t(lang, "alert_active", { origin: origName, destination: destName }),
             { reply_markup: kb, parse_mode: "HTML" }
           );
+          return deliverSnapshot(ctx, lang, chatId, originCode, destCode, origName, destName, result);
         }
         return ctx.editMessageText(
           t(lang, "already_tracking", { origin: origName, destination: destName }),
@@ -255,7 +372,7 @@ function buildBot(env) {
             chat_id: chatId,
             origin: originCode,
             destination: destCode,
-            welcomed: false,
+            welcomed: welcomedNow,
             disabled: false,
           },
           { onConflict: "chat_id,origin,destination" }
@@ -269,10 +386,11 @@ function buildBot(env) {
         );
       }
 
-      return ctx.editMessageText(
+      await ctx.editMessageText(
         t(lang, "alert_active", { origin: origName, destination: destName }),
         { reply_markup: kb, parse_mode: "HTML" }
       );
+      return deliverSnapshot(ctx, lang, chatId, originCode, destCode, origName, destName, result);
     }
 
     // 7. List Active Subscriptions

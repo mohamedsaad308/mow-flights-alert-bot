@@ -50,8 +50,19 @@ const STRINGS = {
     already_in_watchlist: "ℹ️ <b>Already in Watchlist:</b>\n<b>{origin}</b> ➡️ <b>{destination}</b>",
     alert_active:
       "✅ <b>Alert Active!</b>\n\nRoute: <b>{origin}</b> ➡️ <b>{destination}</b>\n\n" +
-      "You will get a direct notification whenever a direct flight price drops!\n\n" +
-      "⏱ Your first price update will arrive within about 30 minutes.",
+      "You will get a direct notification whenever a direct flight price drops!",
+    snapshot_found:
+      "📊 <b>{origin} ➡️ {destination}</b> — current cheapest direct flight\n\n" +
+      "💰 <b>${price}</b>{duration}\n" +
+      "🛫 {departure}    ✈️ {flight}\n" +
+      "<a href=\"{link}\">Book / Check on Aviasales</a>\n\n" +
+      "⚠️ <i>Cached data, not live — verify on Aviasales before booking.</i>",
+    snapshot_none:
+      "ℹ️ <b>{origin} ➡️ {destination}</b> — no direct flights found in the next 30 days right now.\n" +
+      "I'll alert you as soon as one appears.\n\n" +
+      "⚠️ <i>Cached data, not live — verify on Aviasales before booking.</i>",
+    snapshot_delayed:
+      "⏱ Couldn't fetch the price right now — your first price update will arrive within about 20 minutes.",
     route_unsupported:
       "❌ <b>{origin} ➡️ {destination}</b> isn't supported by my price data source, so I can't track it.\n\n" +
       "Please pick a different airport.",
@@ -91,8 +102,19 @@ const STRINGS = {
     already_in_watchlist: "ℹ️ <b>Уже в списке:</b>\n<b>{origin}</b> ➡️ <b>{destination}</b>",
     alert_active:
       "✅ <b>Маршрут добавлен!</b>\n\nМаршрут: <b>{origin}</b> ➡️ <b>{destination}</b>\n\n" +
-      "Вы получите уведомление, как только цена на прямой рейс снизится!\n\n" +
-      "⏱ Первое сообщение с текущей ценой придёт примерно в течение 30 минут.",
+      "Вы получите уведомление, как только цена на прямой рейс снизится!",
+    snapshot_found:
+      "📊 <b>{origin} ➡️ {destination}</b> — самый дешёвый прямой рейс сейчас\n\n" +
+      "💰 <b>${price}</b>{duration}\n" +
+      "🛫 {departure}    ✈️ {flight}\n" +
+      "<a href=\"{link}\">Купить / проверить на Aviasales</a>\n\n" +
+      "⚠️ <i>Данные из кэша, а не в реальном времени — проверьте цену на Aviasales перед покупкой.</i>",
+    snapshot_none:
+      "ℹ️ <b>{origin} ➡️ {destination}</b> — прямых рейсов в ближайшие 30 дней сейчас не найдено.\n" +
+      "Я сообщу, как только они появятся.\n\n" +
+      "⚠️ <i>Данные из кэша, а не в реальном времени — проверьте цену на Aviasales перед покупкой.</i>",
+    snapshot_delayed:
+      "⏱ Не удалось получить цену прямо сейчас — первое сообщение с ценой придёт примерно в течение 20 минут.",
     route_unsupported:
       "❌ Маршрут <b>{origin} ➡️ {destination}</b> не поддерживается источником цен, поэтому я не могу его отслеживать.\n\n" +
       "Пожалуйста, выберите другой аэропорт.",
