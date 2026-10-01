@@ -131,7 +131,7 @@ IGNORED_FLIGHTS = {
 }
 
 CURRENCY = "usd"
-DATE_RANGE_DAYS = 30           # today through today + (DATE_RANGE_DAYS - 1)
+DATE_RANGE_DAYS = 10          # today through today + (DATE_RANGE_DAYS - 1)
 MAX_MISSES = 3                 # consecutive runs without a fare at/below the record before it's declared gone
 RECORD_TTL_DAYS = 2            # safety net only: covers the bot not running for days (misses can't count then)
 EMPTY_GRACE_DAYS = 3           # confirmed-empty days required before forgetting a route
