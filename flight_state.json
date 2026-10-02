@@ -29,7 +29,7 @@
     },
     "LED|HRG": {
       "date": "2026-10-06",
-      "misses": 1,
+      "misses": 2,
       "price": 359,
       "seen": "2026-10-02"
     },
@@ -42,7 +42,7 @@
     "MOW|CAI": {
       "date": "2026-10-11",
       "misses": 0,
-      "price": 326,
+      "price": 323,
       "seen": "2026-10-02"
     },
     "MOW|HRG": {
