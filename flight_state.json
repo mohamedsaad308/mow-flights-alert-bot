@@ -5,7 +5,7 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-10-05",
-      "misses": 0,
+      "misses": 1,
       "price": 263,
       "seen": "2026-10-02"
     },
@@ -47,13 +47,13 @@
     },
     "MOW|HRG": {
       "date": "2026-10-09",
-      "misses": 1,
+      "misses": 2,
       "price": 438,
       "seen": "2026-10-02"
     },
     "MOW|SSH": {
       "date": "2026-10-11",
-      "misses": 1,
+      "misses": 2,
       "price": 356,
       "seen": "2026-10-02"
     },
