@@ -8,7 +8,8 @@ on:
 
 jobs:
   run-bot:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     environment: test # <--- IMPORTANT: This grants access to the "test" environment secrets
 
     steps:
