@@ -6,6 +6,11 @@ Direct-flight price watcher: MOW (Moscow) / LED (Saint Petersburg) / MSQ (Minsk)
 Checks a rolling date window (today through DATE_RANGE_DAYS-1 days ahead)
 using Travelpayouts' aviasales/v3/prices_for_dates endpoint.
 
+PRICES: fares are fetched and compared in RUBLES (the native Aviasales
+currency). A dollar figure is shown next to each ruble price for convenience,
+computed from the Central Bank of Russia rate fetched once per run. The dollar
+number is approximate and display-only; it never affects alert logic.
+
 IMPORTANT LIMITATION: this data comes from Travelpayouts' cache of real user
 searches (NOT a live check), and this endpoint doesn't expose a freshness
 timestamp for individual fares. A fare tagged "direct" here can be stale or
@@ -130,20 +135,24 @@ IGNORED_FLIGHTS = {
     # ("LED", "HRG", "UJ736"),
 }
 
-CURRENCY = "usd"
+CURRENCY = "rub"
 DATE_RANGE_DAYS = 10          # today through today + (DATE_RANGE_DAYS - 1)
 MAX_MISSES = 3                 # consecutive runs without a fare at/below the record before it's declared gone
 RECORD_TTL_DAYS = 2            # safety net only: covers the bot not running for days (misses can't count then)
 EMPTY_GRACE_DAYS = 3           # confirmed-empty days required before forgetting a route
-MIN_PRICE_DROP_USD = 10        # ignore drops smaller than this -- avoid $1 noise
+MIN_PRICE_DROP_RUB = 1000      # ignore drops smaller than this (~$10) -- avoid tiny noise
 REQUEST_PAUSE_SECONDS = 0.15   # small pause between API calls
 REQUEST_TIMEOUT = 20
 
 STATE_FILE = os.environ.get("STATE_FILE", "flight_state.json")
 STATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), STATE_FILE)
-STATE_VERSION = 3
+STATE_VERSION = 4  # v4: prices stored in RUB (v3 was USD)
 
 AFFILIATE_MARKER = "776670"  # Travelpayouts affiliate marker -- appended to every link
+
+CBR_URL = "https://www.cbr-xml-daily.ru/daily_json.js"  # official CBR daily rates (public mirror)
+USD_RUB_FALLBACK = os.environ.get("USD_RUB_FALLBACK", "")  # optional manual rate if the fetch fails
+USD_RATE = None  # RUB per 1 USD, set once per run in main(); None -> show rubles only
 
 TP_PRICES_FOR_DATES_URL = "https://api.travelpayouts.com/aviasales/v3/prices_for_dates"
 TG_SEND_URL_TMPL = "https://api.telegram.org/bot{token}/sendMessage"
@@ -178,7 +187,7 @@ def build_session():
 # ---------------------------------------------------------------------------
 # State
 #
-# Schema (v3):
+# Schema (v4, prices in RUB):
 # {
 #   "version": 3,
 #   "records": {
@@ -358,6 +367,30 @@ def aviasales_link(origin, destination, depart_date_str):
     return f"https://www.aviasales.ru/search/{segment}?marker={AFFILIATE_MARKER}"
 
 
+def fetch_usd_rate(session):
+    """RUB per 1 USD from the Central Bank of Russia, or None if unavailable.
+    Falls back to the USD_RUB_FALLBACK env var; if that is unset too, prices
+    are shown in rubles only."""
+    try:
+        resp = session.get(CBR_URL, timeout=REQUEST_TIMEOUT)
+        resp.raise_for_status()
+        return float(resp.json()["Valute"]["USD"]["Value"])
+    except (requests.RequestException, ValueError, KeyError, TypeError) as e:
+        print(f"USD rate fetch failed: {e}", file=sys.stderr)
+    try:
+        return float(USD_RUB_FALLBACK) if USD_RUB_FALLBACK else None
+    except ValueError:
+        return None
+
+
+def fmt_price(rub):
+    """12345 -> '12 345 \u20bd (~$150)'. Rubles only if no USD rate is known."""
+    text = f"{int(round(rub)):,}".replace(",", " ") + " \u20bd"
+    if USD_RATE:
+        return f"{text} (~${round(rub / USD_RATE)})"
+    return text
+
+
 def format_duration(minutes):
     if minutes is None:
         return "unknown"
@@ -437,7 +470,7 @@ def check_route(origin, destination, fares, failed, state, today):
 
     Record = {"price", "date", "seen", "misses"}
       - a fare at or below the record exists  -> misses = 0, alert if it is
-        MIN_PRICE_DROP_USD or more below, lower the record
+        MIN_PRICE_DROP_RUB or more below, lower the record
       - no such fare                          -> misses += 1, record untouched
       - misses reaches MAX_MISSES             -> record price is gone (sold out),
         silently adopt the current cheapest fare
@@ -494,7 +527,7 @@ def check_route(origin, destination, fares, failed, state, today):
 
     if price <= old_price:
         # The record price (or better) is still on the market.
-        if old_price - price >= MIN_PRICE_DROP_USD:
+        if old_price - price >= MIN_PRICE_DROP_RUB:
             events.append(make_event("drop", origin, destination, best, old_price))
         state["records"][route_key] = new_record()  # ratchet down, misses back to 0
         return events
@@ -533,12 +566,12 @@ def summarize_route(origin, destination, fares, failed, total_calls):
         warn = f"  ⚠️ {failed}/{total_calls} queries failed" if failed else ""
         tg = (
             f"<b>{route_label}</b>  ({len(fares)} found){warn}\n"
-            f"    💰 <b>${best.get('price')}</b> · {depart_date} · "
+            f"    💰 <b>{fmt_price(best.get('price'))}</b> · {depart_date} · "
             f"{format_duration(best.get('duration'))}\n"
             f"    <a href=\"{link}\">View on Aviasales</a>"
         )
         printed = (f"[{route_label}] {len(fares)} direct fare(s), cheapest "
-                   f"${best.get('price')} on {depart_date}"
+                   f"{fmt_price(best.get('price'))} on {depart_date}"
                    + (f" ({failed} failed queries)" if failed else ""))
     elif failed:
         # Previously this was indistinguishable from "no direct flights" --
@@ -572,10 +605,10 @@ def build_event_block(ev):
     duration_note = f" · {format_duration(ev['duration'])}" if ev.get("duration") else ""
     if ev["kind"] == "wakeup":
         headline = f"🆕 <b>{ev['origin']} → {ev['destination']}</b> — direct flights appeared"
-        price_line = f"💰 <b>${ev['price']}</b>"
+        price_line = f"💰 <b>{fmt_price(ev['price'])}</b>"
     else:
         headline = f"📉 <b>{ev['origin']} → {ev['destination']}</b> — new best price"
-        price_line = f"💰 ${ev['old_price']} → <b>${ev['price']}</b>"
+        price_line = f"💰 {fmt_price(ev['old_price'])} → <b>{fmt_price(ev['price'])}</b>"
     return (
         f"{headline}\n"
         f"{price_line}{duration_note}\n"
@@ -615,7 +648,11 @@ def main():
         print("ERROR: TP_TOKEN is not set.", file=sys.stderr)
         sys.exit(1)
 
+    global USD_RATE
     session = build_session()
+    USD_RATE = fetch_usd_rate(session)
+    if args.verbose:
+        print(f"USD rate: {USD_RATE if USD_RATE else 'unavailable (rubles only)'}")
     today = date.today()  # NOTE: UTC on a GitHub runner, not Africa/Cairo
     dates = window_dates(today, args.days)
     calls_per_route = len(dates) if args.daily_queries else len(months_in_window(dates))
@@ -636,7 +673,7 @@ def main():
                 continue
             print(f"\n--- {origin} -> {destination} details ---")
             for f in sorted(fares, key=lambda x: x.get("departure_at") or ""):
-                print(f"    {format_departure(f.get('departure_at'))}  ${f.get('price')}  "
+                print(f"    {format_departure(f.get('departure_at'))}  {fmt_price(f.get('price'))}  "
                       f"{f.get('airline')}{f.get('flight_number')}  "
                       f"duration={format_duration(f.get('duration'))}")
 
