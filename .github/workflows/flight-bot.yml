@@ -14,8 +14,8 @@ concurrency:
 
 jobs:
   check-flights:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     # CHANGED: picks the environment (and so the secrets) by branch
     environment: ${{ github.ref_name == 'master' && 'production' || 'test' }}
     env:
