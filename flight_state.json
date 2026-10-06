@@ -3,20 +3,20 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-10-11",
-      "misses": 1,
+      "misses": 2,
       "price": 21983,
       "seen": "2026-10-06"
     },
     "HRG|LED": {
       "date": "2026-10-08",
-      "misses": 2,
-      "price": 27202,
+      "misses": 0,
+      "price": 27379,
       "seen": "2026-10-06"
     },
     "HRG|MOW": {
       "date": "2026-10-08",
       "misses": 0,
-      "price": 23167,
+      "price": 23085,
       "seen": "2026-10-06"
     },
     "HRG|MSQ": {
@@ -27,14 +27,14 @@
     },
     "LED|HRG": {
       "date": "2026-10-11",
-      "misses": 2,
-      "price": 27888,
+      "misses": 0,
+      "price": 28231,
       "seen": "2026-10-06"
     },
     "LED|SSH": {
       "date": "2026-10-07",
-      "misses": 2,
-      "price": 29817,
+      "misses": 0,
+      "price": 30012,
       "seen": "2026-10-06"
     },
     "MOW|CAI": {
@@ -44,39 +44,39 @@
       "seen": "2026-10-06"
     },
     "MOW|HRG": {
-      "date": "2026-10-07",
-      "misses": 2,
-      "price": 24701,
+      "date": "2026-10-12",
+      "misses": 0,
+      "price": 32979,
       "seen": "2026-10-06"
     },
     "MOW|SSH": {
-      "date": "2026-10-06",
-      "misses": 2,
-      "price": 18962,
+      "date": "2026-10-14",
+      "misses": 0,
+      "price": 39798,
       "seen": "2026-10-06"
     },
     "MSQ|HRG": {
-      "date": "2026-10-10",
-      "misses": 1,
-      "price": 68703,
+      "date": "2026-10-13",
+      "misses": 0,
+      "price": 68477,
       "seen": "2026-10-06"
     },
     "MSQ|SSH": {
       "date": "2026-10-07",
-      "misses": 1,
+      "misses": 2,
       "price": 65634,
       "seen": "2026-10-06"
     },
     "SSH|LED": {
       "date": "2026-10-07",
-      "misses": 2,
-      "price": 35289,
+      "misses": 0,
+      "price": 35325,
       "seen": "2026-10-06"
     },
     "SSH|MOW": {
       "date": "2026-10-07",
-      "misses": 2,
-      "price": 16192,
+      "misses": 0,
+      "price": 16298,
       "seen": "2026-10-06"
     },
     "SSH|MSQ": {
