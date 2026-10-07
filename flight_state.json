@@ -3,19 +3,19 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-10-09",
-      "misses": 0,
+      "misses": 1,
       "price": 22789,
       "seen": "2026-10-07"
     },
     "HRG|LED": {
       "date": "2026-10-08",
-      "misses": 2,
-      "price": 9854,
+      "misses": 0,
+      "price": 9857,
       "seen": "2026-10-07"
     },
     "HRG|MOW": {
       "date": "2026-10-14",
-      "misses": 0,
+      "misses": 1,
       "price": 14592,
       "seen": "2026-10-07"
     },
@@ -27,61 +27,61 @@
     },
     "LED|HRG": {
       "date": "2026-10-11",
-      "misses": 0,
+      "misses": 1,
       "price": 41505,
       "seen": "2026-10-07"
     },
     "LED|SSH": {
       "date": "2026-10-14",
       "misses": 0,
-      "price": 44236,
+      "price": 44230,
       "seen": "2026-10-07"
     },
     "MOW|CAI": {
       "date": "2026-10-12",
-      "misses": 2,
-      "price": 25470,
+      "misses": 0,
+      "price": 27440,
       "seen": "2026-10-07"
     },
     "MOW|HRG": {
-      "date": "2026-10-12",
+      "date": "2026-10-15",
       "misses": 0,
-      "price": 31480,
+      "price": 30428,
       "seen": "2026-10-07"
     },
     "MOW|SSH": {
       "date": "2026-10-09",
-      "misses": 0,
+      "misses": 1,
       "price": 33789,
       "seen": "2026-10-07"
     },
     "MSQ|HRG": {
       "date": "2026-10-13",
-      "misses": 2,
-      "price": 69272,
+      "misses": 0,
+      "price": 69292,
       "seen": "2026-10-07"
     },
     "MSQ|SSH": {
       "date": "2026-10-14",
-      "misses": 2,
-      "price": 68634,
+      "misses": 0,
+      "price": 68654,
       "seen": "2026-10-07"
     },
     "SSH|LED": {
       "date": "2026-10-09",
-      "misses": 0,
+      "misses": 1,
       "price": 40695,
       "seen": "2026-10-07"
     },
     "SSH|MOW": {
-      "date": "2026-10-09",
-      "misses": 2,
-      "price": 22165,
+      "date": "2026-10-10",
+      "misses": 0,
+      "price": 34999,
       "seen": "2026-10-07"
     },
     "SSH|MSQ": {
       "date": "2026-10-15",
-      "misses": 0,
+      "misses": 1,
       "price": 29765,
       "seen": "2026-10-07"
     }
