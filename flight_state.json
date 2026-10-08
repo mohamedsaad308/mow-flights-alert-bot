@@ -32,20 +32,20 @@
       "seen": "2026-10-08"
     },
     "LED|SSH": {
-      "date": "2026-10-10",
+      "date": "2026-10-09",
       "misses": 0,
-      "price": 44807,
+      "price": 30667,
       "seen": "2026-10-08"
     },
     "MOW|CAI": {
       "date": "2026-10-14",
-      "misses": 2,
-      "price": 33216,
+      "misses": 0,
+      "price": 33283,
       "seen": "2026-10-08"
     },
     "MOW|HRG": {
       "date": "2026-10-15",
-      "misses": 0,
+      "misses": 1,
       "price": 29892,
       "seen": "2026-10-08"
     },
@@ -70,7 +70,7 @@
     "SSH|LED": {
       "date": "2026-10-09",
       "misses": 0,
-      "price": 40559,
+      "price": 39830,
       "seen": "2026-10-08"
     },
     "SSH|MOW": {
