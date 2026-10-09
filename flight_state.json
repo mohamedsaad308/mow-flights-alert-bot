@@ -2,57 +2,57 @@
   "empty_since": {},
   "records": {
     "CAI|MOW": {
-      "date": "2026-10-14",
-      "misses": 2,
-      "price": 22579,
+      "date": "2026-10-16",
+      "misses": 0,
+      "price": 22586,
       "seen": "2026-10-09"
     },
     "HRG|LED": {
       "date": "2026-10-13",
       "misses": 0,
-      "price": 28222,
+      "price": 28210,
       "seen": "2026-10-09"
     },
     "HRG|MOW": {
       "date": "2026-10-15",
       "misses": 0,
-      "price": 28545,
+      "price": 28527,
       "seen": "2026-10-09"
     },
     "HRG|MSQ": {
       "date": "2026-10-13",
       "misses": 0,
-      "price": 19238,
+      "price": 19226,
       "seen": "2026-10-09"
     },
     "LED|HRG": {
       "date": "2026-10-11",
       "misses": 0,
-      "price": 24819,
+      "price": 24804,
       "seen": "2026-10-09"
     },
     "LED|SSH": {
       "date": "2026-10-12",
-      "misses": 0,
+      "misses": 1,
       "price": 29237,
       "seen": "2026-10-09"
     },
     "MOW|CAI": {
       "date": "2026-10-14",
-      "misses": 1,
-      "price": 27622,
+      "misses": 0,
+      "price": 27611,
       "seen": "2026-10-09"
     },
     "MOW|HRG": {
       "date": "2026-10-12",
-      "misses": 1,
-      "price": 28538,
+      "misses": 0,
+      "price": 28527,
       "seen": "2026-10-09"
     },
     "MOW|SSH": {
       "date": "2026-10-10",
-      "misses": 1,
-      "price": 29278,
+      "misses": 0,
+      "price": 29267,
       "seen": "2026-10-09"
     },
     "MSQ|HRG": {
@@ -62,7 +62,7 @@
       "seen": "2026-10-09"
     },
     "MSQ|SSH": {
-      "date": "2026-10-14",
+      "date": "2026-10-18",
       "misses": 0,
       "price": 68696,
       "seen": "2026-10-09"
@@ -70,13 +70,13 @@
     "SSH|LED": {
       "date": "2026-10-14",
       "misses": 0,
-      "price": 47818,
+      "price": 47788,
       "seen": "2026-10-09"
     },
     "SSH|MOW": {
       "date": "2026-10-16",
       "misses": 0,
-      "price": 11643,
+      "price": 11636,
       "seen": "2026-10-09"
     },
     "SSH|MSQ": {
