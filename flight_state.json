@@ -2,56 +2,56 @@
   "empty_since": {},
   "records": {
     "CAI|MOW": {
-      "date": "2026-10-17",
-      "misses": 2,
-      "price": 22616,
+      "date": "2026-10-19",
+      "misses": 0,
+      "price": 22661,
       "seen": "2026-10-11"
     },
     "HRG|LED": {
       "date": "2026-10-15",
       "misses": 0,
-      "price": 28222,
+      "price": 28215,
       "seen": "2026-10-11"
     },
     "HRG|MOW": {
       "date": "2026-10-19",
       "misses": 0,
-      "price": 27884,
+      "price": 27877,
       "seen": "2026-10-11"
     },
     "HRG|MSQ": {
       "date": "2026-10-20",
       "misses": 0,
-      "price": 29521,
+      "price": 29514,
       "seen": "2026-10-11"
     },
     "LED|HRG": {
       "date": "2026-10-15",
       "misses": 0,
-      "price": 41571,
+      "price": 41561,
       "seen": "2026-10-11"
     },
     "LED|SSH": {
       "date": "2026-10-16",
       "misses": 0,
-      "price": 30467,
+      "price": 30460,
       "seen": "2026-10-11"
     },
     "MOW|CAI": {
       "date": "2026-10-19",
       "misses": 0,
-      "price": 25482,
+      "price": 25476,
       "seen": "2026-10-11"
     },
     "MOW|HRG": {
       "date": "2026-10-14",
       "misses": 0,
-      "price": 30086,
+      "price": 30079,
       "seen": "2026-10-11"
     },
     "MOW|SSH": {
       "date": "2026-10-13",
-      "misses": 0,
+      "misses": 1,
       "price": 29487,
       "seen": "2026-10-11"
     },
@@ -64,25 +64,25 @@
     "MSQ|SSH": {
       "date": "2026-10-20",
       "misses": 0,
-      "price": 68696,
+      "price": 68680,
       "seen": "2026-10-11"
     },
     "SSH|LED": {
       "date": "2026-10-19",
-      "misses": 1,
+      "misses": 0,
       "price": 39770,
       "seen": "2026-10-11"
     },
     "SSH|MOW": {
       "date": "2026-10-16",
       "misses": 0,
-      "price": 15235,
+      "price": 15231,
       "seen": "2026-10-11"
     },
     "SSH|MSQ": {
       "date": "2026-10-18",
       "misses": 0,
-      "price": 19321,
+      "price": 19316,
       "seen": "2026-10-11"
     }
   },
