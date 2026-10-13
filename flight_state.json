@@ -4,81 +4,81 @@
   },
   "records": {
     "CAI|MOW": {
-      "date": "2026-10-19",
+      "date": "2026-10-18",
       "misses": 0,
-      "price": 22711,
+      "price": 22688,
       "seen": "2026-10-13"
     },
     "HRG|LED": {
       "date": "2026-10-20",
       "misses": 0,
-      "price": 13322,
+      "price": 13314,
       "seen": "2026-10-13"
     },
     "HRG|MOW": {
       "date": "2026-10-18",
-      "misses": 0,
+      "misses": 1,
       "price": 14274,
       "seen": "2026-10-13"
     },
     "HRG|MSQ": {
       "date": "2026-10-20",
-      "misses": 2,
-      "price": 24016,
+      "misses": 0,
+      "price": 24001,
       "seen": "2026-10-13"
     },
     "LED|HRG": {
       "date": "2026-10-15",
       "misses": 0,
-      "price": 30363,
+      "price": 30329,
       "seen": "2026-10-13"
     },
     "LED|SSH": {
       "date": "2026-10-20",
       "misses": 0,
-      "price": 30060,
+      "price": 30035,
       "seen": "2026-10-13"
     },
     "MOW|CAI": {
       "date": "2026-10-21",
       "misses": 0,
-      "price": 27133,
+      "price": 27115,
       "seen": "2026-10-13"
     },
     "MOW|HRG": {
       "date": "2026-10-20",
       "misses": 0,
-      "price": 17691,
+      "price": 17680,
       "seen": "2026-10-13"
     },
     "MOW|SSH": {
-      "date": "2026-10-20",
+      "date": "2026-10-15",
       "misses": 0,
-      "price": 28874,
+      "price": 27411,
       "seen": "2026-10-13"
     },
     "MSQ|HRG": {
       "date": "2026-10-20",
-      "misses": 2,
-      "price": 69987,
+      "misses": 0,
+      "price": 69944,
       "seen": "2026-10-13"
     },
     "MSQ|SSH": {
-      "date": "2026-10-20",
+      "date": "2026-10-21",
       "misses": 0,
-      "price": 68695,
+      "price": 68656,
       "seen": "2026-10-13"
     },
     "SSH|LED": {
       "date": "2026-10-16",
-      "misses": 0,
+      "misses": 1,
       "price": 13401,
       "seen": "2026-10-13"
     },
     "SSH|MOW": {
-      "date": "2026-10-15",
+      "date": "2026-10-16",
       "misses": 0,
-      "price": 13068,
+      "price": 11412,
       "seen": "2026-10-13"
     },
     "SSH|MSQ": {
