@@ -2,62 +2,62 @@
   "empty_since": {},
   "records": {
     "CAI|MOW": {
-      "date": "2026-10-14",
-      "misses": 2,
-      "price": 22778,
+      "date": "2026-10-19",
+      "misses": 0,
+      "price": 22831,
       "seen": "2026-10-13"
     },
     "HRG|LED": {
       "date": "2026-10-20",
-      "misses": 1,
+      "misses": 2,
       "price": 13380,
       "seen": "2026-10-13"
     },
     "HRG|MOW": {
       "date": "2026-10-18",
-      "misses": 1,
+      "misses": 2,
       "price": 14336,
       "seen": "2026-10-13"
     },
     "HRG|MSQ": {
       "date": "2026-10-20",
-      "misses": 2,
-      "price": 33511,
+      "misses": 0,
+      "price": 24001,
       "seen": "2026-10-13"
     },
     "LED|HRG": {
       "date": "2026-10-15",
-      "misses": 1,
+      "misses": 2,
       "price": 41268,
       "seen": "2026-10-13"
     },
     "LED|SSH": {
       "date": "2026-10-14",
-      "misses": 1,
+      "misses": 2,
       "price": 50083,
       "seen": "2026-10-13"
     },
     "MOW|CAI": {
       "date": "2026-10-21",
-      "misses": 0,
+      "misses": 1,
       "price": 27261,
       "seen": "2026-10-13"
     },
     "MOW|HRG": {
       "date": "2026-10-18",
-      "misses": 1,
+      "misses": 2,
       "price": 21983,
       "seen": "2026-10-13"
     },
     "MOW|SSH": {
       "date": "2026-10-14",
       "misses": 0,
-      "price": 11571,
+      "price": 9652,
       "seen": "2026-10-13"
     },
     "MSQ|HRG": {
       "date": "2026-10-20",
-      "misses": 1,
+      "misses": 2,
       "price": 68677,
       "seen": "2026-10-13"
     },
@@ -69,19 +69,19 @@
     },
     "SSH|LED": {
       "date": "2026-10-16",
-      "misses": 1,
+      "misses": 2,
       "price": 13380,
       "seen": "2026-10-13"
     },
     "SSH|MOW": {
       "date": "2026-10-16",
-      "misses": 1,
+      "misses": 2,
       "price": 11469,
       "seen": "2026-10-13"
     },
     "SSH|MSQ": {
       "date": "2026-10-18",
-      "misses": 0,
+      "misses": 1,
       "price": 18760,
       "seen": "2026-10-13"
     }
