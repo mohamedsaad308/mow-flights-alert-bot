@@ -1,5 +1,7 @@
 {
-  "empty_since": {},
+  "empty_since": {
+    "HRG|MSQ": "2026-10-17"
+  },
   "records": {
     "CAI|MOW": {
       "date": "2026-10-25",
@@ -15,7 +17,7 @@
     },
     "HRG|MOW": {
       "date": "2026-10-19",
-      "misses": 1,
+      "misses": 0,
       "price": 9347,
       "seen": "2026-10-17"
     },
@@ -63,7 +65,7 @@
     },
     "MSQ|SSH": {
       "date": "2026-10-24",
-      "misses": 0,
+      "misses": 1,
       "price": 63882,
       "seen": "2026-10-17"
     },
