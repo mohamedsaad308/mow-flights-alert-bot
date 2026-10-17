@@ -53,13 +53,13 @@
     },
     "MOW|SSH": {
       "date": "2026-10-18",
-      "misses": 0,
+      "misses": 1,
       "price": 30520,
       "seen": "2026-10-17"
     },
     "MSQ|HRG": {
       "date": "2026-10-20",
-      "misses": 1,
+      "misses": 2,
       "price": 49096,
       "seen": "2026-10-17"
     },
@@ -77,7 +77,7 @@
     },
     "SSH|MOW": {
       "date": "2026-10-18",
-      "misses": 1,
+      "misses": 0,
       "price": 14170,
       "seen": "2026-10-17"
     },
