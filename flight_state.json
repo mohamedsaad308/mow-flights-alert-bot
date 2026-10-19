@@ -2,87 +2,87 @@
   "empty_since": {},
   "records": {
     "CAI|MOW": {
-      "date": "2026-10-21",
-      "misses": 2,
-      "price": 22009,
+      "date": "2026-10-26",
+      "misses": 0,
+      "price": 21993,
       "seen": "2026-10-19"
     },
     "HRG|LED": {
       "date": "2026-10-20",
       "misses": 0,
-      "price": 11536,
+      "price": 11529,
       "seen": "2026-10-19"
     },
     "HRG|MOW": {
       "date": "2026-10-24",
-      "misses": 0,
+      "misses": 1,
       "price": 13269,
       "seen": "2026-10-19"
     },
     "HRG|MSQ": {
       "date": "2026-10-27",
       "misses": 0,
-      "price": 22342,
+      "price": 22327,
       "seen": "2026-10-19"
     },
     "LED|HRG": {
       "date": "2026-10-28",
       "misses": 0,
-      "price": 22560,
+      "price": 22544,
       "seen": "2026-10-19"
     },
     "LED|SSH": {
       "date": "2026-10-21",
       "misses": 0,
-      "price": 20985,
+      "price": 20970,
       "seen": "2026-10-19"
     },
     "MOW|CAI": {
       "date": "2026-10-28",
       "misses": 0,
-      "price": 27190,
+      "price": 27171,
       "seen": "2026-10-19"
     },
     "MOW|HRG": {
       "date": "2026-10-28",
-      "misses": 1,
+      "misses": 2,
       "price": 26818,
       "seen": "2026-10-19"
     },
     "MOW|SSH": {
       "date": "2026-10-21",
       "misses": 0,
-      "price": 16215,
+      "price": 16204,
       "seen": "2026-10-19"
     },
     "MSQ|HRG": {
       "date": "2026-10-20",
       "misses": 0,
-      "price": 32581,
+      "price": 32559,
       "seen": "2026-10-19"
     },
     "MSQ|SSH": {
       "date": "2026-10-21",
       "misses": 0,
-      "price": 56791,
+      "price": 56753,
       "seen": "2026-10-19"
     },
     "SSH|LED": {
       "date": "2026-10-21",
       "misses": 0,
-      "price": 14115,
+      "price": 14106,
       "seen": "2026-10-19"
     },
     "SSH|MOW": {
       "date": "2026-10-20",
       "misses": 0,
-      "price": 4807,
+      "price": 4804,
       "seen": "2026-10-19"
     },
     "SSH|MSQ": {
       "date": "2026-10-24",
       "misses": 0,
-      "price": 35024,
+      "price": 35000,
       "seen": "2026-10-19"
     }
   },
