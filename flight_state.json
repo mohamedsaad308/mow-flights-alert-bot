@@ -4,85 +4,85 @@
     "CAI|MOW": {
       "date": "2026-10-21",
       "misses": 0,
-      "price": 22096,
+      "price": 22004,
       "seen": "2026-10-20"
     },
     "HRG|LED": {
       "date": "2026-10-22",
       "misses": 0,
-      "price": 12646,
+      "price": 12526,
       "seen": "2026-10-20"
     },
     "HRG|MOW": {
       "date": "2026-10-21",
       "misses": 0,
-      "price": 5713,
+      "price": 5689,
       "seen": "2026-10-20"
     },
     "HRG|MSQ": {
       "date": "2026-10-27",
       "misses": 0,
-      "price": 24813,
+      "price": 24710,
       "seen": "2026-10-20"
     },
     "LED|HRG": {
       "date": "2026-10-28",
       "misses": 0,
-      "price": 22639,
+      "price": 22460,
       "seen": "2026-10-20"
     },
     "LED|SSH": {
       "date": "2026-10-24",
       "misses": 0,
-      "price": 25500,
+      "price": 25394,
       "seen": "2026-10-20"
     },
     "MOW|CAI": {
       "date": "2026-10-29",
-      "misses": 1,
+      "misses": 2,
       "price": 25201,
       "seen": "2026-10-20"
     },
     "MOW|HRG": {
       "date": "2026-10-28",
       "misses": 0,
-      "price": 17892,
+      "price": 17818,
       "seen": "2026-10-20"
     },
     "MOW|SSH": {
       "date": "2026-10-21",
       "misses": 0,
-      "price": 7617,
+      "price": 7585,
       "seen": "2026-10-20"
     },
     "MSQ|HRG": {
       "date": "2026-10-22",
       "misses": 0,
-      "price": 37435,
+      "price": 37279,
       "seen": "2026-10-20"
     },
     "MSQ|SSH": {
       "date": "2026-10-21",
       "misses": 0,
-      "price": 55169,
+      "price": 54939,
       "seen": "2026-10-20"
     },
     "SSH|LED": {
       "date": "2026-10-23",
       "misses": 0,
-      "price": 15110,
+      "price": 15047,
       "seen": "2026-10-20"
     },
     "SSH|MOW": {
       "date": "2026-10-21",
-      "misses": 0,
+      "misses": 1,
       "price": 7617,
       "seen": "2026-10-20"
     },
     "SSH|MSQ": {
       "date": "2026-10-24",
       "misses": 0,
-      "price": 34344,
+      "price": 34201,
       "seen": "2026-10-20"
     }
   },
