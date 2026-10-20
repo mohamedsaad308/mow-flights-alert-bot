@@ -3,7 +3,7 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-10-28",
-      "misses": 0,
+      "misses": 1,
       "price": 22155,
       "seen": "2026-10-20"
     },
@@ -15,73 +15,73 @@
     },
     "HRG|MOW": {
       "date": "2026-10-21",
-      "misses": 2,
-      "price": 5703,
+      "misses": 0,
+      "price": 5710,
       "seen": "2026-10-20"
     },
     "HRG|MSQ": {
       "date": "2026-10-27",
-      "misses": 0,
+      "misses": 1,
       "price": 24844,
       "seen": "2026-10-20"
     },
     "LED|HRG": {
       "date": "2026-10-28",
-      "misses": 1,
+      "misses": 2,
       "price": 22544,
       "seen": "2026-10-20"
     },
     "LED|SSH": {
       "date": "2026-10-23",
-      "misses": 2,
-      "price": 24555,
+      "misses": 0,
+      "price": 24588,
       "seen": "2026-10-20"
     },
     "MOW|CAI": {
       "date": "2026-10-29",
-      "misses": 0,
+      "misses": 1,
       "price": 25127,
       "seen": "2026-10-20"
     },
     "MOW|HRG": {
       "date": "2026-10-28",
-      "misses": 1,
+      "misses": 2,
       "price": 17884,
       "seen": "2026-10-20"
     },
     "MOW|SSH": {
       "date": "2026-10-23",
-      "misses": 2,
-      "price": 17944,
+      "misses": 0,
+      "price": 17968,
       "seen": "2026-10-20"
     },
     "MSQ|HRG": {
       "date": "2026-10-22",
-      "misses": 0,
+      "misses": 1,
       "price": 37482,
       "seen": "2026-10-20"
     },
     "MSQ|SSH": {
       "date": "2026-10-21",
-      "misses": 0,
+      "misses": 1,
       "price": 55237,
       "seen": "2026-10-20"
     },
     "SSH|LED": {
       "date": "2026-10-23",
-      "misses": 2,
-      "price": 15110,
+      "misses": 0,
+      "price": 15130,
       "seen": "2026-10-20"
     },
     "SSH|MOW": {
       "date": "2026-10-21",
-      "misses": 2,
-      "price": 7607,
+      "misses": 0,
+      "price": 7617,
       "seen": "2026-10-20"
     },
     "SSH|MSQ": {
       "date": "2026-10-24",
-      "misses": 0,
+      "misses": 1,
       "price": 34387,
       "seen": "2026-10-20"
     }
