@@ -2,39 +2,39 @@
   "empty_since": {},
   "records": {
     "CAI|MOW": {
-      "date": "2026-10-28",
-      "misses": 2,
-      "price": 21901,
+      "date": "2026-10-21",
+      "misses": 0,
+      "price": 22172,
       "seen": "2026-10-20"
     },
     "HRG|LED": {
       "date": "2026-10-22",
-      "misses": 2,
-      "price": 12526,
+      "misses": 0,
+      "price": 12579,
       "seen": "2026-10-20"
     },
     "HRG|MOW": {
       "date": "2026-10-21",
-      "misses": 2,
-      "price": 5689,
+      "misses": 0,
+      "price": 5713,
       "seen": "2026-10-20"
     },
     "HRG|MSQ": {
       "date": "2026-10-27",
-      "misses": 2,
-      "price": 23100,
+      "misses": 0,
+      "price": 23198,
       "seen": "2026-10-20"
     },
     "LED|HRG": {
       "date": "2026-10-28",
-      "misses": 2,
-      "price": 22460,
+      "misses": 0,
+      "price": 22555,
       "seen": "2026-10-20"
     },
     "LED|SSH": {
       "date": "2026-10-24",
-      "misses": 2,
-      "price": 25394,
+      "misses": 0,
+      "price": 25501,
       "seen": "2026-10-20"
     },
     "MOW|CAI": {
@@ -45,44 +45,44 @@
     },
     "MOW|HRG": {
       "date": "2026-10-28",
-      "misses": 2,
-      "price": 17818,
+      "misses": 0,
+      "price": 18104,
       "seen": "2026-10-20"
     },
     "MOW|SSH": {
-      "date": "2026-10-21",
-      "misses": 2,
-      "price": 7585,
+      "date": "2026-10-23",
+      "misses": 0,
+      "price": 17945,
       "seen": "2026-10-20"
     },
     "MSQ|HRG": {
-      "date": "2026-10-22",
-      "misses": 2,
-      "price": 37279,
+      "date": "2026-10-24",
+      "misses": 0,
+      "price": 42759,
       "seen": "2026-10-20"
     },
     "MSQ|SSH": {
-      "date": "2026-10-21",
-      "misses": 2,
-      "price": 54939,
+      "date": "2026-10-28",
+      "misses": 0,
+      "price": 67658,
       "seen": "2026-10-20"
     },
     "SSH|LED": {
       "date": "2026-10-23",
-      "misses": 2,
-      "price": 15047,
+      "misses": 0,
+      "price": 15111,
       "seen": "2026-10-20"
     },
     "SSH|MOW": {
       "date": "2026-10-25",
-      "misses": 2,
-      "price": 13004,
+      "misses": 0,
+      "price": 13059,
       "seen": "2026-10-20"
     },
     "SSH|MSQ": {
       "date": "2026-10-24",
-      "misses": 2,
-      "price": 34201,
+      "misses": 0,
+      "price": 34345,
       "seen": "2026-10-20"
     }
   },
