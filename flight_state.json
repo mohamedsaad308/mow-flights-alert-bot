@@ -10,12 +10,12 @@
     "HRG|LED": {
       "date": "2026-10-22",
       "misses": 0,
-      "price": 9322,
+      "price": 9210,
       "seen": "2026-10-21"
     },
     "HRG|MOW": {
       "date": "2026-10-22",
-      "misses": 0,
+      "misses": 1,
       "price": 9163,
       "seen": "2026-10-21"
     },
