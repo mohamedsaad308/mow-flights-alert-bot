@@ -3,20 +3,20 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-10-27",
-      "misses": 1,
+      "misses": 2,
       "price": 21410,
       "seen": "2026-10-22"
     },
     "HRG|LED": {
       "date": "2026-10-24",
-      "misses": 1,
+      "misses": 2,
       "price": 18546,
       "seen": "2026-10-22"
     },
     "HRG|MOW": {
-      "date": "2026-10-23",
+      "date": "2026-10-24",
       "misses": 0,
-      "price": 7544,
+      "price": 7539,
       "seen": "2026-10-22"
     },
     "HRG|MSQ": {
@@ -27,32 +27,32 @@
     },
     "LED|HRG": {
       "date": "2026-10-27",
-      "misses": 2,
-      "price": 17370,
+      "misses": 0,
+      "price": 17653,
       "seen": "2026-10-22"
     },
     "LED|SSH": {
-      "date": "2026-10-24",
-      "misses": 2,
-      "price": 22255,
+      "date": "2026-10-28",
+      "misses": 0,
+      "price": 49763,
       "seen": "2026-10-22"
     },
     "MOW|CAI": {
       "date": "2026-10-28",
-      "misses": 0,
+      "misses": 1,
       "price": 24089,
       "seen": "2026-10-22"
     },
     "MOW|HRG": {
       "date": "2026-10-30",
-      "misses": 2,
-      "price": 15107,
+      "misses": 0,
+      "price": 15353,
       "seen": "2026-10-22"
     },
     "MOW|SSH": {
-      "date": "2026-10-22",
-      "misses": 2,
-      "price": 18597,
+      "date": "2026-10-29",
+      "misses": 0,
+      "price": 19952,
       "seen": "2026-10-22"
     },
     "MSQ|HRG": {
@@ -63,26 +63,26 @@
     },
     "MSQ|SSH": {
       "date": "2026-10-29",
-      "misses": 1,
+      "misses": 2,
       "price": 26633,
       "seen": "2026-10-22"
     },
     "SSH|LED": {
       "date": "2026-10-26",
-      "misses": 2,
-      "price": 50473,
+      "misses": 0,
+      "price": 51386,
       "seen": "2026-10-22"
     },
     "SSH|MOW": {
-      "date": "2026-10-24",
-      "misses": 2,
-      "price": 8613,
+      "date": "2026-10-26",
+      "misses": 0,
+      "price": 8753,
       "seen": "2026-10-22"
     },
     "SSH|MSQ": {
       "date": "2026-10-24",
       "misses": 0,
-      "price": 18395,
+      "price": 18308,
       "seen": "2026-10-22"
     }
   },
