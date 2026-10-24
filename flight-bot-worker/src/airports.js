@@ -30,6 +30,7 @@ export const AIRPORTS_BY_COUNTRY = {
     ["VKO", { en: "Vnukovo (VKO)", ru: "Внуково (VKO)" }],
     ["LED", { en: "St. Petersburg (LED)", ru: "Санкт-Петербург (LED)" }],
     ["AER", { en: "Sochi (AER)", ru: "Сочи (AER)" }],
+    ["KRR", { en: "Krasnodar (KRR)", ru: "Краснодар (KRR)" }],
     ["KZN", { en: "Kazan (KZN)", ru: "Казань (KZN)" }],
     ["SVX", { en: "Yekaterinburg (SVX)", ru: "Екатеринбург (SVX)" }],
     ["OVB", { en: "Novosibirsk (OVB)", ru: "Новосибирск (OVB)" }],
