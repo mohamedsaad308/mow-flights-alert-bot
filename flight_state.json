@@ -17,8 +17,8 @@
     },
     "HRG|MOW": {
       "date": "2026-11-03",
-      "misses": 2,
-      "price": 80785,
+      "misses": 0,
+      "price": 80904,
       "seen": "2026-10-30"
     },
     "HRG|MSQ": {
@@ -72,7 +72,7 @@
     "SSH|LED": {
       "date": "2026-11-06",
       "misses": 0,
-      "price": 45498,
+      "price": 45497,
       "seen": "2026-10-30"
     },
     "SSH|MOW": {
