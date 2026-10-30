@@ -5,7 +5,7 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-03",
-      "misses": 0,
+      "misses": 1,
       "price": 23613,
       "seen": "2026-10-30"
     },
@@ -17,73 +17,73 @@
     },
     "HRG|MOW": {
       "date": "2026-10-31",
-      "misses": 1,
+      "misses": 2,
       "price": 44553,
       "seen": "2026-10-30"
     },
     "HRG|MSQ": {
       "date": "2026-11-03",
-      "misses": 0,
+      "misses": 1,
       "price": 26162,
       "seen": "2026-10-30"
     },
     "LED|HRG": {
       "date": "2026-11-08",
-      "misses": 0,
+      "misses": 1,
       "price": 21407,
       "seen": "2026-10-30"
     },
     "LED|SSH": {
       "date": "2026-11-07",
-      "misses": 2,
-      "price": 20661,
+      "misses": 0,
+      "price": 20693,
       "seen": "2026-10-30"
     },
     "MOW|CAI": {
       "date": "2026-11-04",
-      "misses": 0,
+      "misses": 1,
       "price": 18285,
       "seen": "2026-10-30"
     },
     "MOW|HRG": {
       "date": "2026-11-06",
-      "misses": 0,
+      "misses": 1,
       "price": 11207,
       "seen": "2026-10-30"
     },
     "MOW|SSH": {
       "date": "2026-11-02",
-      "misses": 0,
+      "misses": 1,
       "price": 19104,
       "seen": "2026-10-30"
     },
     "MSQ|HRG": {
       "date": "2026-11-07",
-      "misses": 0,
+      "misses": 1,
       "price": 66844,
       "seen": "2026-10-30"
     },
     "MSQ|SSH": {
       "date": "2026-11-08",
-      "misses": 1,
+      "misses": 2,
       "price": 66038,
       "seen": "2026-10-30"
     },
     "SSH|LED": {
       "date": "2026-11-06",
-      "misses": 2,
-      "price": 45691,
+      "misses": 0,
+      "price": 45762,
       "seen": "2026-10-30"
     },
     "SSH|MOW": {
-      "date": "2026-10-31",
-      "misses": 2,
-      "price": 13588,
+      "date": "2026-11-07",
+      "misses": 0,
+      "price": 18364,
       "seen": "2026-10-30"
     },
     "SSH|MSQ": {
       "date": "2026-11-01",
-      "misses": 0,
+      "misses": 1,
       "price": 36895,
       "seen": "2026-10-30"
     }
