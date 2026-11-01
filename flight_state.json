@@ -5,9 +5,9 @@
   },
   "records": {
     "CAI|MOW": {
-      "date": "2026-11-05",
+      "date": "2026-11-09",
       "misses": 0,
-      "price": 25932,
+      "price": 25475,
       "seen": "2026-11-01"
     },
     "HRG|LED": {
@@ -30,7 +30,7 @@
     },
     "LED|HRG": {
       "date": "2026-11-10",
-      "misses": 0,
+      "misses": 1,
       "price": 28483,
       "seen": "2026-11-01"
     },
