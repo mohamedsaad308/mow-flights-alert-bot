@@ -6,7 +6,7 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-09",
-      "misses": 0,
+      "misses": 1,
       "price": 25475,
       "seen": "2026-11-01"
     },
@@ -36,7 +36,7 @@
     },
     "LED|SSH": {
       "date": "2026-11-02",
-      "misses": 0,
+      "misses": 1,
       "price": 28132,
       "seen": "2026-11-01"
     },
@@ -66,8 +66,8 @@
     },
     "MSQ|SSH": {
       "date": "2026-11-07",
-      "misses": 2,
-      "price": 67004,
+      "misses": 0,
+      "price": 68554,
       "seen": "2026-11-01"
     },
     "SSH|LED": {
