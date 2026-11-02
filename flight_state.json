@@ -21,7 +21,7 @@
     },
     "LED|HRG": {
       "date": "2026-11-03",
-      "misses": 1,
+      "misses": 2,
       "price": 31377,
       "seen": "2026-11-02"
     },
@@ -39,13 +39,13 @@
     },
     "MOW|HRG": {
       "date": "2026-11-06",
-      "misses": 1,
+      "misses": 2,
       "price": 11153,
       "seen": "2026-11-02"
     },
     "MOW|SSH": {
       "date": "2026-11-03",
-      "misses": 1,
+      "misses": 2,
       "price": 20870,
       "seen": "2026-11-02"
     },
@@ -63,21 +63,21 @@
     },
     "SSH|LED": {
       "date": "2026-11-06",
-      "misses": 0,
+      "misses": 1,
       "price": 45557,
       "seen": "2026-11-02"
     },
     "SSH|MOW": {
       "date": "2026-11-10",
       "misses": 0,
-      "price": 33060,
+      "price": 33047,
       "seen": "2026-11-02"
     },
     "SSH|MSQ": {
-      "date": "2026-11-01",
-      "misses": 2,
-      "price": 38282,
-      "seen": "2026-10-31"
+      "date": "2026-11-11",
+      "misses": 0,
+      "price": 68097,
+      "seen": "2026-11-02"
     }
   },
   "routes_with_fares": [
