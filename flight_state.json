@@ -3,79 +3,79 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-11",
-      "misses": 1,
+      "misses": 2,
       "price": 21878,
       "seen": "2026-11-02"
     },
     "HRG|LED": {
-      "date": "2026-11-03",
-      "misses": 2,
-      "price": 41482,
+      "date": "2026-11-11",
+      "misses": 0,
+      "price": 101250,
       "seen": "2026-11-02"
     },
     "HRG|MOW": {
       "date": "2026-11-10",
-      "misses": 1,
+      "misses": 2,
       "price": 48188,
       "seen": "2026-11-02"
     },
     "HRG|MSQ": {
       "date": "2026-11-07",
-      "misses": 2,
-      "price": 18222,
+      "misses": 0,
+      "price": 20677,
       "seen": "2026-11-02"
     },
     "LED|HRG": {
       "date": "2026-11-09",
-      "misses": 1,
+      "misses": 2,
       "price": 21406,
       "seen": "2026-11-02"
     },
     "LED|SSH": {
       "date": "2026-11-11",
-      "misses": 1,
-      "price": 32075,
+      "misses": 0,
+      "price": 31530,
       "seen": "2026-11-02"
     },
     "MOW|CAI": {
-      "date": "2026-11-08",
-      "misses": 2,
-      "price": 18204,
+      "date": "2026-11-04",
+      "misses": 0,
+      "price": 18330,
       "seen": "2026-11-02"
     },
     "MOW|HRG": {
       "date": "2026-11-04",
-      "misses": 1,
+      "misses": 2,
       "price": 8608,
       "seen": "2026-11-02"
     },
     "MOW|SSH": {
-      "date": "2026-11-10",
-      "misses": 1,
-      "price": 20937,
+      "date": "2026-11-03",
+      "misses": 0,
+      "price": 18120,
       "seen": "2026-11-02"
     },
     "MSQ|HRG": {
-      "date": "2026-11-07",
+      "date": "2026-11-10",
       "misses": 0,
-      "price": 68554,
+      "price": 68029,
       "seen": "2026-11-02"
     },
     "MSQ|SSH": {
       "date": "2026-11-11",
-      "misses": 1,
+      "misses": 2,
       "price": 67879,
       "seen": "2026-11-02"
     },
     "SSH|LED": {
       "date": "2026-11-06",
-      "misses": 2,
-      "price": 45771,
+      "misses": 0,
+      "price": 45952,
       "seen": "2026-11-02"
     },
     "SSH|MOW": {
       "date": "2026-11-10",
-      "misses": 1,
+      "misses": 2,
       "price": 33057,
       "seen": "2026-11-02"
     },
