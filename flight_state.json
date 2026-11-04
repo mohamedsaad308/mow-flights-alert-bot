@@ -10,13 +10,13 @@
     "HRG|LED": {
       "date": "2026-11-10",
       "misses": 0,
-      "price": 93390,
+      "price": 93389,
       "seen": "2026-11-04"
     },
     "HRG|MOW": {
       "date": "2026-11-05",
       "misses": 0,
-      "price": 34575,
+      "price": 34574,
       "seen": "2026-11-04"
     },
     "HRG|MSQ": {
@@ -39,14 +39,14 @@
     },
     "MOW|CAI": {
       "date": "2026-11-10",
-      "misses": 0,
+      "misses": 1,
       "price": 21156,
       "seen": "2026-11-04"
     },
     "MOW|HRG": {
       "date": "2026-11-06",
       "misses": 0,
-      "price": 9016,
+      "price": 9006,
       "seen": "2026-11-04"
     },
     "MOW|SSH": {
@@ -75,7 +75,7 @@
     },
     "SSH|MOW": {
       "date": "2026-11-11",
-      "misses": 1,
+      "misses": 2,
       "price": 32443,
       "seen": "2026-11-04"
     },
