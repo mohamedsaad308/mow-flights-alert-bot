@@ -68,20 +68,20 @@
       "seen": "2026-11-07"
     },
     "SSH|LED": {
-      "date": "2026-11-12",
-      "misses": 2,
-      "price": 27938,
+      "date": "2026-11-16",
+      "misses": 0,
+      "price": 27948,
       "seen": "2026-11-07"
     },
     "SSH|MOW": {
       "date": "2026-11-14",
-      "misses": 1,
+      "misses": 2,
       "price": 18645,
       "seen": "2026-11-07"
     },
     "SSH|MSQ": {
       "date": "2026-11-11",
-      "misses": 0,
+      "misses": 1,
       "price": 18352,
       "seen": "2026-11-07"
     }
