@@ -9,8 +9,8 @@
     },
     "HRG|LED": {
       "date": "2026-11-11",
-      "misses": 2,
-      "price": 65076,
+      "misses": 0,
+      "price": 20956,
       "seen": "2026-11-07"
     },
     "HRG|MOW": {
@@ -33,7 +33,7 @@
     },
     "LED|SSH": {
       "date": "2026-11-11",
-      "misses": 0,
+      "misses": 1,
       "price": 10361,
       "seen": "2026-11-07"
     },
@@ -81,7 +81,7 @@
     },
     "SSH|MSQ": {
       "date": "2026-11-11",
-      "misses": 1,
+      "misses": 0,
       "price": 18352,
       "seen": "2026-11-07"
     }
