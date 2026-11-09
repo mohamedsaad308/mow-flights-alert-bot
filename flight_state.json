@@ -3,85 +3,85 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-15",
-      "misses": 1,
+      "misses": 2,
       "price": 21448,
       "seen": "2026-11-09"
     },
     "HRG|LED": {
       "date": "2026-11-14",
-      "misses": 1,
+      "misses": 2,
       "price": 48289,
       "seen": "2026-11-09"
     },
     "HRG|MOW": {
       "date": "2026-11-13",
-      "misses": 1,
+      "misses": 2,
       "price": 35622,
       "seen": "2026-11-09"
     },
     "HRG|MSQ": {
       "date": "2026-11-17",
-      "misses": 1,
+      "misses": 2,
       "price": 36888,
       "seen": "2026-11-09"
     },
     "LED|HRG": {
       "date": "2026-11-17",
-      "misses": 1,
+      "misses": 2,
       "price": 29252,
       "seen": "2026-11-09"
     },
     "LED|SSH": {
       "date": "2026-11-18",
-      "misses": 1,
+      "misses": 2,
       "price": 26118,
       "seen": "2026-11-09"
     },
     "MOW|CAI": {
       "date": "2026-11-11",
-      "misses": 1,
+      "misses": 2,
       "price": 18568,
       "seen": "2026-11-09"
     },
     "MOW|HRG": {
       "date": "2026-11-11",
-      "misses": 1,
+      "misses": 2,
       "price": 11704,
       "seen": "2026-11-09"
     },
     "MOW|SSH": {
       "date": "2026-11-12",
-      "misses": 1,
+      "misses": 2,
       "price": 17563,
       "seen": "2026-11-09"
     },
     "MSQ|HRG": {
       "date": "2026-11-12",
-      "misses": 1,
+      "misses": 2,
       "price": 57367,
       "seen": "2026-11-09"
     },
     "MSQ|SSH": {
       "date": "2026-11-18",
-      "misses": 1,
+      "misses": 2,
       "price": 60964,
       "seen": "2026-11-09"
     },
     "SSH|LED": {
       "date": "2026-11-15",
-      "misses": 1,
+      "misses": 2,
       "price": 20668,
       "seen": "2026-11-09"
     },
     "SSH|MOW": {
       "date": "2026-11-12",
-      "misses": 1,
+      "misses": 2,
       "price": 28287,
       "seen": "2026-11-09"
     },
     "SSH|MSQ": {
       "date": "2026-11-11",
-      "misses": 1,
+      "misses": 2,
       "price": 18553,
       "seen": "2026-11-09"
     }
