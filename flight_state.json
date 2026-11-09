@@ -3,55 +3,55 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-11",
-      "misses": 0,
+      "misses": 1,
       "price": 21444,
       "seen": "2026-11-09"
     },
     "HRG|LED": {
       "date": "2026-11-17",
-      "misses": 0,
+      "misses": 1,
       "price": 32615,
       "seen": "2026-11-09"
     },
     "HRG|MOW": {
-      "date": "2026-11-10",
-      "misses": 2,
-      "price": 23903,
+      "date": "2026-11-18",
+      "misses": 0,
+      "price": 39794,
       "seen": "2026-11-09"
     },
     "HRG|MSQ": {
       "date": "2026-11-17",
-      "misses": 0,
+      "misses": 1,
       "price": 36677,
       "seen": "2026-11-09"
     },
     "LED|HRG": {
       "date": "2026-11-14",
-      "misses": 0,
+      "misses": 1,
       "price": 20999,
       "seen": "2026-11-09"
     },
     "LED|SSH": {
       "date": "2026-11-10",
       "misses": 0,
-      "price": 24414,
+      "price": 21701,
       "seen": "2026-11-09"
     },
     "MOW|CAI": {
       "date": "2026-11-11",
-      "misses": 2,
-      "price": 18479,
+      "misses": 0,
+      "price": 18596,
       "seen": "2026-11-09"
     },
     "MOW|HRG": {
       "date": "2026-11-11",
-      "misses": 0,
+      "misses": 1,
       "price": 11665,
       "seen": "2026-11-09"
     },
     "MOW|SSH": {
       "date": "2026-11-10",
-      "misses": 1,
+      "misses": 2,
       "price": 7161,
       "seen": "2026-11-09"
     },
@@ -63,25 +63,25 @@
     },
     "MSQ|SSH": {
       "date": "2026-11-18",
-      "misses": 0,
+      "misses": 1,
       "price": 60727,
       "seen": "2026-11-09"
     },
     "SSH|LED": {
       "date": "2026-11-09",
-      "misses": 0,
+      "misses": 1,
       "price": 30240,
       "seen": "2026-11-09"
     },
     "SSH|MOW": {
       "date": "2026-11-13",
-      "misses": 1,
-      "price": 28093,
+      "misses": 0,
+      "price": 25348,
       "seen": "2026-11-09"
     },
     "SSH|MSQ": {
       "date": "2026-11-11",
-      "misses": 0,
+      "misses": 1,
       "price": 18368,
       "seen": "2026-11-09"
     }
