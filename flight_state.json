@@ -3,56 +3,56 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-16",
-      "misses": 1,
+      "misses": 2,
       "price": 21441,
       "seen": "2026-11-11"
     },
     "HRG|LED": {
       "date": "2026-11-18",
-      "misses": 0,
+      "misses": 1,
       "price": 43931,
       "seen": "2026-11-11"
     },
     "HRG|MOW": {
       "date": "2026-11-16",
-      "misses": 1,
-      "price": 37362,
+      "misses": 0,
+      "price": 37328,
       "seen": "2026-11-11"
     },
     "HRG|MSQ": {
       "date": "2026-11-20",
-      "misses": 2,
-      "price": 61152,
+      "misses": 0,
+      "price": 61705,
       "seen": "2026-11-11"
     },
     "LED|HRG": {
       "date": "2026-11-20",
       "misses": 0,
-      "price": 11292,
+      "price": 11282,
       "seen": "2026-11-11"
     },
     "LED|SSH": {
-      "date": "2026-11-12",
+      "date": "2026-11-13",
       "misses": 0,
-      "price": 27676,
+      "price": 27651,
       "seen": "2026-11-11"
     },
     "MOW|CAI": {
       "date": "2026-11-20",
-      "misses": 0,
+      "misses": 1,
       "price": 18585,
       "seen": "2026-11-11"
     },
     "MOW|HRG": {
       "date": "2026-11-19",
       "misses": 0,
-      "price": 14128,
+      "price": 14115,
       "seen": "2026-11-11"
     },
     "MOW|SSH": {
       "date": "2026-11-12",
       "misses": 0,
-      "price": 17608,
+      "price": 17592,
       "seen": "2026-11-11"
     },
     "MSQ|HRG": {
@@ -64,25 +64,25 @@
     "MSQ|SSH": {
       "date": "2026-11-19",
       "misses": 0,
-      "price": 31753,
+      "price": 31724,
       "seen": "2026-11-11"
     },
     "SSH|LED": {
       "date": "2026-11-11",
       "misses": 0,
-      "price": 29386,
+      "price": 29353,
       "seen": "2026-11-11"
     },
     "SSH|MOW": {
       "date": "2026-11-12",
       "misses": 0,
-      "price": 20882,
+      "price": 20863,
       "seen": "2026-11-11"
     },
     "SSH|MSQ": {
       "date": "2026-11-11",
       "misses": 0,
-      "price": 23137,
+      "price": 23116,
       "seen": "2026-11-11"
     }
   },
