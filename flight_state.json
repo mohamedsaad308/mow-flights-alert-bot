@@ -3,20 +3,20 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-19",
-      "misses": 1,
+      "misses": 2,
       "price": 21456,
       "seen": "2026-11-13"
     },
     "HRG|LED": {
       "date": "2026-11-18",
-      "misses": 2,
-      "price": 36131,
+      "misses": 0,
+      "price": 36133,
       "seen": "2026-11-13"
     },
     "HRG|MOW": {
-      "date": "2026-11-15",
+      "date": "2026-11-22",
       "misses": 0,
-      "price": 39117,
+      "price": 33391,
       "seen": "2026-11-13"
     },
     "HRG|MSQ": {
@@ -39,14 +39,14 @@
     },
     "MOW|CAI": {
       "date": "2026-11-22",
-      "misses": 1,
+      "misses": 2,
       "price": 18626,
       "seen": "2026-11-13"
     },
     "MOW|HRG": {
       "date": "2026-11-21",
-      "misses": 2,
-      "price": 16798,
+      "misses": 0,
+      "price": 16834,
       "seen": "2026-11-13"
     },
     "MOW|SSH": {
@@ -69,20 +69,20 @@
     },
     "SSH|LED": {
       "date": "2026-11-16",
-      "misses": 0,
+      "misses": 1,
       "price": 36370,
       "seen": "2026-11-13"
     },
     "SSH|MOW": {
       "date": "2026-11-14",
-      "misses": 0,
+      "misses": 1,
       "price": 19613,
       "seen": "2026-11-13"
     },
     "SSH|MSQ": {
-      "date": "2026-11-16",
+      "date": "2026-11-19",
       "misses": 0,
-      "price": 27882,
+      "price": 18548,
       "seen": "2026-11-13"
     }
   },
