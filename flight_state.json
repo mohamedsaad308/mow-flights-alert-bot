@@ -9,13 +9,13 @@
     },
     "HRG|LED": {
       "date": "2026-11-24",
-      "misses": 2,
-      "price": 39763,
+      "misses": 0,
+      "price": 40236,
       "seen": "2026-11-15"
     },
     "HRG|MOW": {
       "date": "2026-11-22",
-      "misses": 1,
+      "misses": 2,
       "price": 32778,
       "seen": "2026-11-15"
     },
