@@ -3,80 +3,80 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-26",
-      "misses": 0,
+      "misses": 1,
       "price": 21475,
       "seen": "2026-11-17"
     },
     "HRG|LED": {
       "date": "2026-11-24",
       "misses": 0,
-      "price": 41529,
+      "price": 41484,
       "seen": "2026-11-17"
     },
     "HRG|MOW": {
       "date": "2026-11-21",
-      "misses": 2,
-      "price": 34144,
+      "misses": 0,
+      "price": 34108,
       "seen": "2026-11-17"
     },
     "HRG|MSQ": {
       "date": "2026-11-20",
       "misses": 0,
-      "price": 18817,
+      "price": 18792,
       "seen": "2026-11-17"
     },
     "LED|HRG": {
       "date": "2026-11-25",
       "misses": 0,
-      "price": 15070,
+      "price": 15050,
       "seen": "2026-11-17"
     },
     "LED|SSH": {
       "date": "2026-11-24",
-      "misses": 1,
-      "price": 13909,
+      "misses": 0,
+      "price": 13894,
       "seen": "2026-11-17"
     },
     "MOW|CAI": {
       "date": "2026-11-21",
       "misses": 0,
-      "price": 18478,
+      "price": 18454,
       "seen": "2026-11-17"
     },
     "MOW|HRG": {
       "date": "2026-11-19",
-      "misses": 2,
-      "price": 9418,
+      "misses": 0,
+      "price": 9408,
       "seen": "2026-11-17"
     },
     "MOW|SSH": {
       "date": "2026-11-22",
       "misses": 0,
-      "price": 8478,
+      "price": 8467,
       "seen": "2026-11-17"
     },
     "MSQ|HRG": {
       "date": "2026-11-20",
-      "misses": 1,
+      "misses": 2,
       "price": 19259,
       "seen": "2026-11-17"
     },
     "MSQ|SSH": {
       "date": "2026-11-21",
-      "misses": 1,
+      "misses": 2,
       "price": 18953,
       "seen": "2026-11-17"
     },
     "SSH|LED": {
       "date": "2026-11-23",
-      "misses": 1,
+      "misses": 2,
       "price": 45613,
       "seen": "2026-11-17"
     },
     "SSH|MOW": {
       "date": "2026-11-18",
-      "misses": 2,
-      "price": 20577,
+      "misses": 0,
+      "price": 20555,
       "seen": "2026-11-17"
     },
     "SSH|MSQ": {
