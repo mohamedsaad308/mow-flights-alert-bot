@@ -4,79 +4,79 @@
     "CAI|MOW": {
       "date": "2026-11-26",
       "misses": 0,
-      "price": 21523,
+      "price": 21464,
       "seen": "2026-11-17"
     },
     "HRG|LED": {
       "date": "2026-11-24",
       "misses": 0,
-      "price": 41313,
+      "price": 41189,
       "seen": "2026-11-17"
     },
     "HRG|MOW": {
       "date": "2026-11-26",
       "misses": 0,
-      "price": 28847,
+      "price": 28768,
       "seen": "2026-11-17"
     },
     "HRG|MSQ": {
       "date": "2026-11-20",
       "misses": 0,
-      "price": 18778,
+      "price": 18727,
       "seen": "2026-11-17"
     },
     "LED|HRG": {
       "date": "2026-11-22",
       "misses": 0,
-      "price": 15059,
+      "price": 15018,
       "seen": "2026-11-17"
     },
     "LED|SSH": {
       "date": "2026-11-24",
       "misses": 0,
-      "price": 13883,
+      "price": 13845,
       "seen": "2026-11-17"
     },
     "MOW|CAI": {
       "date": "2026-11-20",
       "misses": 0,
-      "price": 18489,
+      "price": 18438,
       "seen": "2026-11-17"
     },
     "MOW|HRG": {
       "date": "2026-11-25",
-      "misses": 1,
-      "price": 10462,
+      "misses": 0,
+      "price": 10442,
       "seen": "2026-11-17"
     },
     "MOW|SSH": {
-      "date": "2026-11-22",
-      "misses": 2,
-      "price": 8721,
+      "date": "2026-11-20",
+      "misses": 0,
+      "price": 8837,
       "seen": "2026-11-17"
     },
     "MSQ|HRG": {
       "date": "2026-11-20",
       "misses": 0,
-      "price": 19281,
+      "price": 19228,
       "seen": "2026-11-17"
     },
     "MSQ|SSH": {
-      "date": "2026-11-22",
+      "date": "2026-11-25",
       "misses": 0,
-      "price": 19227,
+      "price": 19175,
       "seen": "2026-11-17"
     },
     "SSH|LED": {
       "date": "2026-11-23",
       "misses": 0,
-      "price": 45829,
+      "price": 45446,
       "seen": "2026-11-17"
     },
     "SSH|MOW": {
       "date": "2026-11-18",
       "misses": 0,
-      "price": 20562,
+      "price": 20506,
       "seen": "2026-11-17"
     },
     "SSH|MSQ": {
