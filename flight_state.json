@@ -4,85 +4,85 @@
     "CAI|MOW": {
       "date": "2026-11-27",
       "misses": 0,
-      "price": 17821,
+      "price": 17815,
       "seen": "2026-11-18"
     },
     "HRG|LED": {
       "date": "2026-11-18",
       "misses": 0,
-      "price": 55080,
+      "price": 55062,
       "seen": "2026-11-18"
     },
     "HRG|MOW": {
       "date": "2026-11-19",
       "misses": 0,
-      "price": 40659,
+      "price": 40646,
       "seen": "2026-11-18"
     },
     "HRG|MSQ": {
       "date": "2026-11-27",
       "misses": 0,
-      "price": 33297,
+      "price": 33287,
       "seen": "2026-11-18"
     },
     "LED|HRG": {
       "date": "2026-11-27",
       "misses": 0,
-      "price": 9911,
+      "price": 9908,
       "seen": "2026-11-18"
     },
     "LED|SSH": {
       "date": "2026-11-24",
       "misses": 0,
-      "price": 13881,
+      "price": 13876,
       "seen": "2026-11-18"
     },
     "MOW|CAI": {
       "date": "2026-11-27",
       "misses": 0,
-      "price": 15769,
+      "price": 15764,
       "seen": "2026-11-18"
     },
     "MOW|HRG": {
       "date": "2026-11-19",
       "misses": 0,
-      "price": 4816,
+      "price": 4814,
       "seen": "2026-11-18"
     },
     "MOW|SSH": {
       "date": "2026-11-19",
       "misses": 0,
-      "price": 6607,
+      "price": 6605,
       "seen": "2026-11-18"
     },
     "MSQ|HRG": {
       "date": "2026-11-20",
       "misses": 0,
-      "price": 19246,
+      "price": 19240,
       "seen": "2026-11-18"
     },
     "MSQ|SSH": {
       "date": "2026-11-21",
       "misses": 0,
-      "price": 18912,
+      "price": 18906,
       "seen": "2026-11-18"
     },
     "SSH|LED": {
       "date": "2026-11-23",
       "misses": 0,
-      "price": 37910,
+      "price": 37897,
       "seen": "2026-11-18"
     },
     "SSH|MOW": {
       "date": "2026-11-19",
       "misses": 0,
-      "price": 19960,
+      "price": 19944,
       "seen": "2026-11-18"
     },
     "SSH|MSQ": {
       "date": "2026-11-22",
       "misses": 0,
-      "price": 18452,
+      "price": 18446,
       "seen": "2026-11-18"
     }
   },
