@@ -4,49 +4,49 @@
     "CAI|MOW": {
       "date": "2026-11-27",
       "misses": 0,
-      "price": 19130,
+      "price": 19129,
       "seen": "2026-11-18"
     },
     "HRG|LED": {
       "date": "2026-11-18",
       "misses": 0,
-      "price": 55062,
+      "price": 55060,
       "seen": "2026-11-18"
     },
     "HRG|MOW": {
-      "date": "2026-11-26",
+      "date": "2026-11-19",
       "misses": 0,
-      "price": 40805,
+      "price": 40652,
       "seen": "2026-11-18"
     },
     "HRG|MSQ": {
       "date": "2026-11-27",
       "misses": 0,
-      "price": 33228,
+      "price": 33227,
       "seen": "2026-11-18"
     },
     "LED|HRG": {
-      "date": "2026-11-22",
+      "date": "2026-11-25",
       "misses": 0,
-      "price": 15040,
+      "price": 15038,
       "seen": "2026-11-18"
     },
     "LED|SSH": {
       "date": "2026-11-24",
       "misses": 0,
-      "price": 13879,
+      "price": 13878,
       "seen": "2026-11-18"
     },
     "MOW|CAI": {
       "date": "2026-11-27",
       "misses": 0,
-      "price": 15767,
+      "price": 15766,
       "seen": "2026-11-18"
     },
     "MOW|HRG": {
       "date": "2026-11-19",
       "misses": 0,
-      "price": 8258,
+      "price": 7810,
       "seen": "2026-11-18"
     },
     "MOW|SSH": {
@@ -58,31 +58,31 @@
     "MSQ|HRG": {
       "date": "2026-11-20",
       "misses": 0,
-      "price": 18882,
+      "price": 18881,
       "seen": "2026-11-18"
     },
     "MSQ|SSH": {
       "date": "2026-11-21",
       "misses": 0,
-      "price": 18873,
+      "price": 18872,
       "seen": "2026-11-18"
     },
     "SSH|LED": {
       "date": "2026-11-18",
       "misses": 0,
-      "price": 20905,
+      "price": 20904,
       "seen": "2026-11-18"
     },
     "SSH|MOW": {
       "date": "2026-11-18",
       "misses": 0,
-      "price": 20484,
+      "price": 20483,
       "seen": "2026-11-18"
     },
     "SSH|MSQ": {
       "date": "2026-11-22",
       "misses": 0,
-      "price": 18598,
+      "price": 18412,
       "seen": "2026-11-18"
     }
   },
