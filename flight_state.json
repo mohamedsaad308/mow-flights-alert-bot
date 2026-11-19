@@ -3,20 +3,20 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-27",
-      "misses": 2,
-      "price": 17757,
+      "misses": 0,
+      "price": 17758,
       "seen": "2026-11-19"
     },
     "HRG|LED": {
       "date": "2026-11-28",
-      "misses": 1,
-      "price": 50001,
+      "misses": 0,
+      "price": 49994,
       "seen": "2026-11-19"
     },
     "HRG|MOW": {
       "date": "2026-11-24",
       "misses": 0,
-      "price": 33490,
+      "price": 32691,
       "seen": "2026-11-19"
     },
     "HRG|MSQ": {
@@ -27,7 +27,7 @@
     },
     "LED|HRG": {
       "date": "2026-11-28",
-      "misses": 0,
+      "misses": 1,
       "price": 10036,
       "seen": "2026-11-19"
     },
@@ -39,8 +39,8 @@
     },
     "MOW|CAI": {
       "date": "2026-11-27",
-      "misses": 2,
-      "price": 15708,
+      "misses": 0,
+      "price": 15709,
       "seen": "2026-11-19"
     },
     "MOW|HRG": {
@@ -75,7 +75,7 @@
     },
     "SSH|MOW": {
       "date": "2026-11-25",
-      "misses": 0,
+      "misses": 1,
       "price": 19922,
       "seen": "2026-11-19"
     },
