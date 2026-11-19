@@ -4,85 +4,85 @@
     "CAI|MOW": {
       "date": "2026-11-27",
       "misses": 0,
-      "price": 17751,
+      "price": 17730,
       "seen": "2026-11-19"
     },
     "HRG|LED": {
       "date": "2026-11-28",
-      "misses": 0,
+      "misses": 1,
       "price": 50046,
       "seen": "2026-11-19"
     },
     "HRG|MOW": {
       "date": "2026-11-24",
-      "misses": 0,
+      "misses": 1,
       "price": 40597,
       "seen": "2026-11-19"
     },
     "HRG|MSQ": {
       "date": "2026-11-24",
-      "misses": 0,
+      "misses": 1,
       "price": 36849,
       "seen": "2026-11-19"
     },
     "LED|HRG": {
       "date": "2026-11-28",
-      "misses": 0,
+      "misses": 1,
       "price": 10053,
       "seen": "2026-11-19"
     },
     "LED|SSH": {
       "date": "2026-11-24",
-      "misses": 0,
+      "misses": 1,
       "price": 13800,
       "seen": "2026-11-19"
     },
     "MOW|CAI": {
       "date": "2026-11-27",
       "misses": 0,
-      "price": 15702,
+      "price": 15684,
       "seen": "2026-11-19"
     },
     "MOW|HRG": {
       "date": "2026-11-21",
-      "misses": 0,
+      "misses": 1,
       "price": 7017,
       "seen": "2026-11-19"
     },
     "MOW|SSH": {
       "date": "2026-11-21",
-      "misses": 0,
+      "misses": 1,
       "price": 6434,
       "seen": "2026-11-19"
     },
     "MSQ|HRG": {
       "date": "2026-11-28",
-      "misses": 0,
+      "misses": 1,
       "price": 19261,
       "seen": "2026-11-19"
     },
     "MSQ|SSH": {
       "date": "2026-11-26",
-      "misses": 0,
+      "misses": 1,
       "price": 18008,
       "seen": "2026-11-19"
     },
     "SSH|LED": {
       "date": "2026-11-23",
       "misses": 0,
-      "price": 34534,
+      "price": 34488,
       "seen": "2026-11-19"
     },
     "SSH|MOW": {
       "date": "2026-11-25",
       "misses": 0,
-      "price": 21140,
+      "price": 20293,
       "seen": "2026-11-19"
     },
     "SSH|MSQ": {
       "date": "2026-11-23",
       "misses": 0,
-      "price": 17440,
+      "price": 15954,
       "seen": "2026-11-19"
     }
   },
