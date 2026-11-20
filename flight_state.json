@@ -3,9 +3,9 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-27",
-      "misses": 2,
-      "price": 17757,
-      "seen": "2026-11-19"
+      "misses": 0,
+      "price": 17760,
+      "seen": "2026-11-20"
     },
     "HRG|LED": {
       "date": "2026-11-28",
@@ -46,7 +46,7 @@
     "MOW|HRG": {
       "date": "2026-11-22",
       "misses": 0,
-      "price": 7005,
+      "price": 7004,
       "seen": "2026-11-20"
     },
     "MOW|SSH": {
