@@ -3,80 +3,80 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-27",
-      "misses": 2,
-      "price": 17778,
+      "misses": 0,
+      "price": 17760,
       "seen": "2026-11-20"
     },
     "HRG|LED": {
       "date": "2026-11-24",
       "misses": 0,
-      "price": 60951,
+      "price": 60878,
       "seen": "2026-11-20"
     },
     "HRG|MOW": {
       "date": "2026-11-26",
       "misses": 0,
-      "price": 33977,
+      "price": 33936,
       "seen": "2026-11-20"
     },
     "HRG|MSQ": {
       "date": "2026-11-24",
       "misses": 0,
-      "price": 36704,
+      "price": 36660,
       "seen": "2026-11-20"
     },
     "LED|HRG": {
       "date": "2026-11-21",
-      "misses": 2,
-      "price": 5655,
+      "misses": 0,
+      "price": 5649,
       "seen": "2026-11-20"
     },
     "LED|SSH": {
       "date": "2026-11-24",
-      "misses": 2,
-      "price": 8621,
+      "misses": 0,
+      "price": 8613,
       "seen": "2026-11-20"
     },
     "MOW|CAI": {
       "date": "2026-11-29",
       "misses": 0,
-      "price": 15630,
+      "price": 15612,
       "seen": "2026-11-20"
     },
     "MOW|HRG": {
       "date": "2026-11-22",
       "misses": 0,
-      "price": 5656,
+      "price": 5506,
       "seen": "2026-11-20"
     },
     "MOW|SSH": {
       "date": "2026-11-21",
       "misses": 0,
-      "price": 5656,
+      "price": 5649,
       "seen": "2026-11-20"
     },
     "MSQ|HRG": {
       "date": "2026-11-27",
       "misses": 0,
-      "price": 19163,
+      "price": 19140,
       "seen": "2026-11-20"
     },
     "MSQ|SSH": {
       "date": "2026-11-26",
       "misses": 0,
-      "price": 17481,
+      "price": 17460,
       "seen": "2026-11-20"
     },
     "SSH|LED": {
       "date": "2026-11-26",
-      "misses": 1,
-      "price": 27490,
+      "misses": 0,
+      "price": 26329,
       "seen": "2026-11-20"
     },
     "SSH|MOW": {
       "date": "2026-11-25",
-      "misses": 2,
-      "price": 28289,
+      "misses": 0,
+      "price": 28260,
       "seen": "2026-11-20"
     },
     "SSH|MSQ": {
