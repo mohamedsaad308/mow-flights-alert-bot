@@ -51,7 +51,7 @@
     },
     "MOW|SSH": {
       "date": "2026-11-22",
-      "misses": 1,
+      "misses": 2,
       "price": 4886,
       "seen": "2026-11-21"
     },
@@ -69,8 +69,8 @@
     },
     "SSH|LED": {
       "date": "2026-11-21",
-      "misses": 2,
-      "price": 26066,
+      "misses": 0,
+      "price": 26101,
       "seen": "2026-11-21"
     },
     "SSH|MOW": {
