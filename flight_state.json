@@ -63,13 +63,13 @@
     },
     "MSQ|SSH": {
       "date": "2026-11-25",
-      "misses": 2,
-      "price": 18707,
+      "misses": 0,
+      "price": 19140,
       "seen": "2026-11-22"
     },
     "SSH|LED": {
       "date": "2026-11-22",
-      "misses": 1,
+      "misses": 2,
       "price": 25927,
       "seen": "2026-11-22"
     },
