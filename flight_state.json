@@ -3,7 +3,7 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-27",
-      "misses": 1,
+      "misses": 2,
       "price": 17756,
       "seen": "2026-11-24"
     },
@@ -15,7 +15,7 @@
     },
     "HRG|MOW": {
       "date": "2026-12-03",
-      "misses": 0,
+      "misses": 1,
       "price": 33913,
       "seen": "2026-11-24"
     },
@@ -44,9 +44,9 @@
       "seen": "2026-11-24"
     },
     "MOW|HRG": {
-      "date": "2026-12-01",
+      "date": "2026-12-03",
       "misses": 0,
-      "price": 8640,
+      "price": 8636,
       "seen": "2026-11-24"
     },
     "MOW|SSH": {
@@ -75,8 +75,8 @@
     },
     "SSH|MOW": {
       "date": "2026-11-30",
-      "misses": 2,
-      "price": 26138,
+      "misses": 0,
+      "price": 26147,
       "seen": "2026-11-24"
     },
     "SSH|MSQ": {
