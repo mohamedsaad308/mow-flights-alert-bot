@@ -4,30 +4,30 @@
     "CAI|MOW": {
       "date": "2026-11-29",
       "misses": 0,
-      "price": 17738,
+      "price": 17728,
       "seen": "2026-11-26"
     },
     "HRG|LED": {
       "date": "2026-12-04",
-      "misses": 1,
+      "misses": 2,
       "price": 45219,
       "seen": "2026-11-26"
     },
     "HRG|MOW": {
       "date": "2026-11-30",
-      "misses": 1,
+      "misses": 2,
       "price": 28609,
       "seen": "2026-11-26"
     },
     "HRG|MSQ": {
       "date": "2026-11-28",
-      "misses": 2,
-      "price": 34398,
+      "misses": 0,
+      "price": 34402,
       "seen": "2026-11-26"
     },
     "LED|HRG": {
       "date": "2026-11-29",
-      "misses": 1,
+      "misses": 2,
       "price": 6460,
       "seen": "2026-11-26"
     },
@@ -38,9 +38,9 @@
       "seen": "2026-11-26"
     },
     "MOW|CAI": {
-      "date": "2026-11-29",
-      "misses": 2,
-      "price": 15524,
+      "date": "2026-11-27",
+      "misses": 0,
+      "price": 15545,
       "seen": "2026-11-26"
     },
     "MOW|HRG": {
@@ -51,38 +51,38 @@
     },
     "MOW|SSH": {
       "date": "2026-11-28",
-      "misses": 2,
-      "price": 7043,
+      "misses": 0,
+      "price": 7045,
       "seen": "2026-11-26"
     },
     "MSQ|HRG": {
       "date": "2026-12-01",
-      "misses": 2,
-      "price": 18861,
+      "misses": 0,
+      "price": 18863,
       "seen": "2026-11-26"
     },
     "MSQ|SSH": {
       "date": "2026-11-29",
-      "misses": 2,
-      "price": 19180,
+      "misses": 0,
+      "price": 19182,
       "seen": "2026-11-26"
     },
     "SSH|LED": {
       "date": "2026-12-01",
-      "misses": 2,
-      "price": 19779,
+      "misses": 0,
+      "price": 19785,
       "seen": "2026-11-26"
     },
     "SSH|MOW": {
       "date": "2026-12-02",
-      "misses": 1,
+      "misses": 2,
       "price": 28056,
       "seen": "2026-11-26"
     },
     "SSH|MSQ": {
       "date": "2026-12-01",
-      "misses": 2,
-      "price": 33689,
+      "misses": 0,
+      "price": 33693,
       "seen": "2026-11-26"
     }
   },
