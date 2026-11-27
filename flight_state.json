@@ -3,85 +3,85 @@
   "records": {
     "CAI|MOW": {
       "date": "2026-11-29",
-      "misses": 1,
+      "misses": 2,
       "price": 17735,
       "seen": "2026-11-27"
     },
     "HRG|LED": {
       "date": "2026-12-04",
-      "misses": 1,
+      "misses": 2,
       "price": 44241,
       "seen": "2026-11-27"
     },
     "HRG|MOW": {
       "date": "2026-12-04",
-      "misses": 1,
+      "misses": 2,
       "price": 30671,
       "seen": "2026-11-27"
     },
     "HRG|MSQ": {
       "date": "2026-12-04",
-      "misses": 1,
+      "misses": 2,
       "price": 33508,
       "seen": "2026-11-27"
     },
     "LED|HRG": {
       "date": "2026-11-29",
-      "misses": 0,
+      "misses": 1,
       "price": 5420,
       "seen": "2026-11-27"
     },
     "LED|SSH": {
       "date": "2026-11-28",
-      "misses": 1,
+      "misses": 2,
       "price": 9232,
       "seen": "2026-11-27"
     },
     "MOW|CAI": {
       "date": "2026-11-29",
-      "misses": 1,
+      "misses": 2,
       "price": 15517,
       "seen": "2026-11-27"
     },
     "MOW|HRG": {
       "date": "2026-11-29",
-      "misses": 1,
+      "misses": 2,
       "price": 7223,
       "seen": "2026-11-27"
     },
     "MOW|SSH": {
       "date": "2026-11-29",
-      "misses": 1,
+      "misses": 2,
       "price": 5417,
       "seen": "2026-11-27"
     },
     "MSQ|HRG": {
       "date": "2026-12-04",
-      "misses": 0,
+      "misses": 1,
       "price": 19238,
       "seen": "2026-11-27"
     },
     "MSQ|SSH": {
       "date": "2026-11-29",
-      "misses": 1,
+      "misses": 2,
       "price": 19227,
       "seen": "2026-11-27"
     },
     "SSH|LED": {
       "date": "2026-11-30",
-      "misses": 1,
+      "misses": 2,
       "price": 55269,
       "seen": "2026-11-27"
     },
     "SSH|MOW": {
       "date": "2026-12-02",
-      "misses": 1,
+      "misses": 2,
       "price": 16252,
       "seen": "2026-11-27"
     },
     "SSH|MSQ": {
       "date": "2026-12-03",
-      "misses": 1,
+      "misses": 2,
       "price": 33720,
       "seen": "2026-11-27"
     }
