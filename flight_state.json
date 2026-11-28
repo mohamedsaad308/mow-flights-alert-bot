@@ -63,8 +63,8 @@
     },
     "MSQ|SSH": {
       "date": "2026-11-29",
-      "misses": 2,
-      "price": 19239,
+      "misses": 0,
+      "price": 19549,
       "seen": "2026-11-28"
     },
     "SSH|LED": {
